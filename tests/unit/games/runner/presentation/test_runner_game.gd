@@ -321,3 +321,19 @@ func test_relayout_during_run_resizes_world() -> void:
 	var screen := game.get_viewport_rect().size
 	assert_almost_eq(session.run.world_width, screen.x / minf(screen.x, screen.y), 0.0001)
 	assert_eq(_visible_obstacle_sprites().size(), 1)
+
+
+func test_start_screen_shows_coins_and_locks() -> void:
+	assert_eq(ui.get_node("%CoinsLabel").text, "🪙 0")
+	assert_true(ui.get_node("%CharacterButtons/Cat").is_locked)
+
+
+func test_crash_shows_coins_earned_and_new_balance() -> void:
+	_choose_runner()
+	session.run.elapsed = 12.0 / Run.SCORE_PER_SECOND
+	_crash()
+
+	game.get_node("GameOverTimer").timeout.emit()
+
+	assert_eq(ui.get_node("%FinalCoinsLabel").text, "+12 🪙")
+	assert_eq(ui.get_node("%CoinsLabel").text, "🪙 12")

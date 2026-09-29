@@ -24,6 +24,7 @@ var _ground_y := 0.0
 var _obstacle_footprints: Array[Vector2] = []
 var _obstacle_sprites := {}
 var _spare_obstacle_sprites: Array[Sprite2D] = []
+var _coins_earned := 0
 
 @onready var _background: RunnerBackground = $Background
 @onready var _obstacles: Node2D = $Obstacles
@@ -50,6 +51,7 @@ func _ready() -> void:
 	_game_over_timer.timeout.connect(_on_game_over_timer_timeout)
 	get_viewport().size_changed.connect(_layout)
 	_layout()
+	_refresh_progress()
 	_ui.show_start()
 	set_process(false)
 
@@ -86,13 +88,19 @@ func _start_run() -> void:
 	set_process(true)
 
 
-func _on_run_ended(_score: int, _best_score: int, _coins_earned: int) -> void:
+func _on_run_ended(_score: int, _best_score: int, coins_earned: int) -> void:
 	set_process(false)
+	_coins_earned = coins_earned
+	_refresh_progress()
 	_game_over_timer.start()
 
 
 func _on_game_over_timer_timeout() -> void:
-	_ui.show_game_over(_session.run.score, _session.best_score)
+	_ui.show_game_over(_session.run.score, _session.best_score, _coins_earned)
+
+
+func _refresh_progress() -> void:
+	_ui.show_progress(_session.coins(), _session.progress.owned)
 
 
 func _on_obstacle_spawned(obstacle: Obstacle) -> void:

@@ -14,12 +14,107 @@ func _character_button(index: int) -> CharacterButton:
 	return ui.get_node("%CharacterButtons").get_child(index)
 
 
-func test_offers_girl_and_boy() -> void:
+func _owned(ids: Array[StringName]) -> Dictionary[StringName, bool]:
+	var owned: Dictionary[StringName, bool] = {}
+	for id in ids:
+		owned[id] = true
+	return owned
+
+
+func test_offers_every_catalog_character_in_order() -> void:
 	var paths := []
+	var ids: Array[StringName] = []
 	for button: CharacterButton in ui.get_node("%CharacterButtons").get_children():
 		paths.append(button.frames.resource_path)
+		ids.append(button.character_id)
 
-	assert_eq(paths, ["res://assets/runner/characters/little_girl.tres", "res://assets/runner/characters/little_boy.tres"])
+	assert_eq(ids, CharacterCatalog.ids())
+	assert_eq(paths, [
+		"res://assets/runner/characters/little_girl.tres",
+		"res://assets/runner/characters/little_boy.tres",
+		"res://assets/runner/characters/cat.tres",
+	])
+
+
+func test_cat_is_locked_by_default() -> void:
+	assert_false(_character_button(0).is_locked)
+	assert_false(_character_button(1).is_locked)
+	assert_true(_character_button(2).is_locked)
+	assert_eq(_character_button(2).text, "🔒 🪙 500")
+
+
+func test_character_buttons_share_one_group() -> void:
+	var group := _character_button(0).button_group
+
+	for button: CharacterButton in ui.get_node("%CharacterButtons").get_children():
+		assert_eq(button.button_group, group)
+
+
+func test_show_progress_updates_coins_and_locks() -> void:
+	ui.show_progress(310, _owned([&"little_girl", &"little_boy", &"cat"]))
+
+	assert_eq(ui.get_node("%CoinsLabel").text, "🪙 310")
+	assert_false(_character_button(2).is_locked)
+
+
+func test_show_progress_moves_selection_to_owned_character() -> void:
+	ui.show_progress(0, _owned([&"little_boy"]))
+
+	assert_true(_character_button(0).is_locked)
+	assert_true(_character_button(1).button_pressed)
+	assert_eq(ui.selected_character(), _character_button(1).frames)
+
+
+func test_show_progress_keeps_owned_selection() -> void:
+	_character_button(1).button_pressed = true
+
+	ui.show_progress(5, _owned([&"little_girl", &"little_boy"]))
+
+	assert_true(_character_button(1).button_pressed)
+
+
+func test_locked_character_cannot_be_selected() -> void:
+	_character_button(2).button_pressed = true
+
+	assert_false(_character_button(2).button_pressed)
+	assert_eq(ui.selected_character(), _character_button(0).frames)
+
+
+func test_tapping_locked_character_requests_shop() -> void:
+	watch_signals(ui)
+
+	_character_button(2)._pressed()
+
+	assert_signal_emitted_with_parameters(ui, "shop_requested", [&"cat"])
+
+
+func test_shop_button_requests_shop() -> void:
+	watch_signals(ui)
+
+	ui.get_node("%ShopButton").pressed.emit()
+
+	assert_signal_emitted_with_parameters(ui, "shop_requested", [&""])
+
+
+func test_select_character_selects_owned() -> void:
+	ui.select_character(&"little_boy")
+
+	assert_true(_character_button(1).button_pressed)
+
+
+func test_select_character_ignores_locked() -> void:
+	ui.select_character(&"cat")
+
+	assert_false(_character_button(2).button_pressed)
+	assert_true(_character_button(0).button_pressed)
+
+
+func test_shop_bar_only_on_start_screen() -> void:
+	ui.show_playing(0)
+	assert_false(ui.get_node("%ShopBar").visible)
+
+	ui.show_start()
+	assert_true(ui.get_node("%ShopBar").visible)
 
 
 func test_first_character_is_selected_by_default() -> void:
@@ -95,7 +190,7 @@ func test_change_runner_button_emits_signal() -> void:
 
 
 func test_show_start_shows_only_start_screen() -> void:
-	ui.show_game_over(1, 2)
+	ui.show_game_over(1, 2, 3)
 
 	ui.show_start()
 
@@ -141,9 +236,10 @@ func test_set_score_does_not_pop_between_milestones() -> void:
 
 
 func test_show_game_over_shows_results() -> void:
-	ui.show_game_over(8, 15)
+	ui.show_game_over(8, 15, 8)
 
 	assert_true(ui.get_node("%GameOverScreen").visible)
 	assert_eq(ui.get_node("%FinalScoreLabel").text, "⭐ 8")
 	assert_eq(ui.get_node("%FinalBestLabel").text, "🏆 15")
+	assert_eq(ui.get_node("%FinalCoinsLabel").text, "+8 🪙")
 	assert_eq(ui.get_node("%BestLabel").text, "🏆 15")

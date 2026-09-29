@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://src/games/runner/presentation/character_button.gd" id="2_button"]
 [ext_resource type="SpriteFrames" path="res://assets/runner/characters/little_girl.tres" id="3_girl"]
 [ext_resource type="SpriteFrames" path="res://assets/runner/characters/little_boy.tres" id="4_boy"]
+[ext_resource type="SpriteFrames" path="res://assets/runner/characters/cat.tres" id="5_cat"]
 
 [sub_resource type="StyleBoxFlat" id="chip"]
 content_margin_left = 24.0
@@ -179,6 +180,10 @@ alignment = 1
 [node name="LittleGirl" type="Button" parent="StartScreen/Layout/CharacterButtons"]
 custom_minimum_size = Vector2(150, 160)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_colors/font_hover_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_colors/font_pressed_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_font_sizes/font_size = 26
 toggle_mode = true
 button_pressed = true
 button_group = SubResource("characters")
@@ -188,13 +193,19 @@ theme_override_styles/hover = SubResource("character_button")
 theme_override_styles/pressed = SubResource("character_selected")
 theme_override_styles/hover_pressed = SubResource("character_selected")
 icon_alignment = 1
+vertical_icon_alignment = 0
 expand_icon = true
 script = ExtResource("2_button")
+character_id = &"little_girl"
 frames = ExtResource("3_girl")
 
 [node name="LittleBoy" type="Button" parent="StartScreen/Layout/CharacterButtons"]
 custom_minimum_size = Vector2(150, 160)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_colors/font_hover_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_colors/font_pressed_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_font_sizes/font_size = 26
 toggle_mode = true
 button_group = SubResource("characters")
 theme_override_styles/focus = SubResource("no_focus")
@@ -203,9 +214,32 @@ theme_override_styles/hover = SubResource("character_button")
 theme_override_styles/pressed = SubResource("character_selected")
 theme_override_styles/hover_pressed = SubResource("character_selected")
 icon_alignment = 1
+vertical_icon_alignment = 0
 expand_icon = true
 script = ExtResource("2_button")
+character_id = &"little_boy"
 frames = ExtResource("4_boy")
+
+[node name="Cat" type="Button" parent="StartScreen/Layout/CharacterButtons"]
+custom_minimum_size = Vector2(150, 160)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_colors/font_hover_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_colors/font_pressed_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_font_sizes/font_size = 26
+toggle_mode = true
+button_group = SubResource("characters")
+theme_override_styles/focus = SubResource("no_focus")
+theme_override_styles/normal = SubResource("character_button")
+theme_override_styles/hover = SubResource("character_button")
+theme_override_styles/pressed = SubResource("character_selected")
+theme_override_styles/hover_pressed = SubResource("character_selected")
+icon_alignment = 1
+vertical_icon_alignment = 0
+expand_icon = true
+script = ExtResource("2_button")
+character_id = &"cat"
+frames = ExtResource("5_cat")
 
 [node name="StartButton" type="Button" parent="StartScreen/Layout"]
 unique_name_in_owner = true
@@ -235,6 +269,41 @@ theme_override_styles/normal = SubResource("round_white")
 theme_override_styles/hover = SubResource("round_white")
 theme_override_styles/pressed = SubResource("round_white")
 text = "⬅️"
+
+[node name="ShopBar" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -424.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 100.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 16
+alignment = 2
+
+[node name="CoinsLabel" type="Label" parent="ShopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("chip")
+text = "🪙 0"
+
+[node name="ShopButton" type="Button" parent="ShopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+theme_override_styles/focus = SubResource("no_focus")
+theme_override_styles/normal = SubResource("round_white")
+theme_override_styles/hover = SubResource("round_white")
+theme_override_styles/pressed = SubResource("round_white")
+text = "🛒"
 
 [node name="GameOverScreen" type="ColorRect" parent="."]
 unique_name_in_owner = true
@@ -298,6 +367,14 @@ theme_override_colors/font_color = Color(0.333, 0.333, 0.333, 1)
 theme_override_font_sizes/font_size = 44
 theme_override_styles/normal = SubResource("chip")
 text = "🏆 0"
+
+[node name="FinalCoinsLabel" type="Label" parent="GameOverScreen/Center/Layout/Results"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_font_sizes/font_size = 44
+theme_override_styles/normal = SubResource("chip")
+text = "+0 🪙"
 
 [node name="Buttons" type="HBoxContainer" parent="GameOverScreen/Center/Layout"]
 layout_mode = 2
