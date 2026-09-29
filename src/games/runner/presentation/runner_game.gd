@@ -86,7 +86,7 @@ func _start_run() -> void:
 	set_process(true)
 
 
-func _on_run_ended(_score: int, _best_score: int) -> void:
+func _on_run_ended(_score: int, _best_score: int, _coins_earned: int) -> void:
 	set_process(false)
 	_game_over_timer.start()
 

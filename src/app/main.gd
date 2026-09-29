@@ -49,7 +49,7 @@ func _on_game_chosen(game: StringName) -> void:
 
 func _build_runner() -> RunnerGame:
 	var rng := _new_rng()
-	var session := RunnerSession.new(JsonBestScoreRepository.new(), rng)
+	var session := RunnerSession.new(JsonProgressRepository.new(), rng)
 	var game: RunnerGame = load(RUNNER_GAME_SCENE).instantiate()
 	game.setup(session, rng)
 	game.exit_requested.connect(show_hub)

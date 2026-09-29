@@ -3,29 +3,16 @@ extends GutTest
 const WORLD_WIDTH := 1.8
 const DELTA := 0.01
 const FOOTPRINTS: Array[Vector2] = [Vector2(0.1, 0.1)]
+const FakeProgressRepository := preload("res://tests/unit/games/runner/fake_progress_repository.gd")
 
 
-class FakeBestScoreRepository:
-	extends BestScoreRepository
-
-	var stored := 0
-	var save_count := 0
-
-	func load_best() -> int:
-		return stored
-
-	func save_best(score: int) -> void:
-		stored = score
-		save_count += 1
-
-
-var repository: FakeBestScoreRepository
+var repository: FakeProgressRepository
 var session: RunnerSession
 
 
 func before_each() -> void:
-	repository = FakeBestScoreRepository.new()
-	repository.stored = 5
+	repository = FakeProgressRepository.new()
+	repository.stored = Progress.restore(5, 100, [])
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1
 	session = RunnerSession.new(repository, rng)
@@ -38,8 +25,10 @@ func _crash_with_score(score: int) -> void:
 	session.tick(DELTA)
 
 
-func test_loads_best_score_on_init() -> void:
+func test_loads_progress_on_init() -> void:
 	assert_eq(session.best_score, 5)
+	assert_eq(session.coins(), 100)
+	assert_eq(session.progress, repository.stored)
 
 
 func test_no_run_before_start() -> void:
@@ -117,8 +106,8 @@ func test_crash_with_new_record_saves_best() -> void:
 
 	assert_false(session.is_running())
 	assert_eq(session.best_score, 9)
-	assert_eq(repository.stored, 9)
-	assert_signal_emitted_with_parameters(session, "run_ended", [9, 9])
+	assert_eq(repository.stored.best_score, 9)
+	assert_signal_emitted_with_parameters(session, "run_ended", [9, 9, 9])
 
 
 func test_crash_below_record_keeps_best() -> void:
@@ -128,8 +117,7 @@ func test_crash_below_record_keeps_best() -> void:
 	_crash_with_score(3)
 
 	assert_eq(session.best_score, 5)
-	assert_eq(repository.save_count, 0)
-	assert_signal_emitted_with_parameters(session, "run_ended", [3, 5])
+	assert_signal_emitted_with_parameters(session, "run_ended", [3, 5, 3])
 
 
 func test_tick_after_crash_does_not_end_twice() -> void:
@@ -140,3 +128,58 @@ func test_tick_after_crash_does_not_end_twice() -> void:
 	session.tick(DELTA)
 
 	assert_signal_not_emitted(session, "run_ended")
+
+
+func test_crash_adds_coins_and_saves_once() -> void:
+	session.start_run(WORLD_WIDTH, FOOTPRINTS)
+
+	_crash_with_score(25)
+
+	assert_eq(session.coins(), 125)
+	assert_eq(repository.save_count, 1)
+	assert_eq(repository.stored.coins, 125)
+
+
+func test_crash_with_zero_score_earns_nothing() -> void:
+	session.start_run(WORLD_WIDTH, FOOTPRINTS)
+	watch_signals(session)
+
+	_crash_with_score(0)
+
+	assert_eq(session.coins(), 100)
+	assert_signal_emitted_with_parameters(session, "run_ended", [0, 5, 0])
+
+
+func test_ticks_do_not_save() -> void:
+	session.start_run(WORLD_WIDTH, FOOTPRINTS)
+
+	session.tick(DELTA)
+	session.tick(DELTA)
+
+	assert_eq(repository.save_count, 0)
+
+
+func test_owns() -> void:
+	assert_true(session.owns(&"little_girl"))
+	assert_false(session.owns(&"cat"))
+
+
+func test_buy_saves_and_emits() -> void:
+	repository.stored.coins = 600
+	watch_signals(session)
+
+	assert_eq(session.buy(&"cat"), Progress.Purchase.BOUGHT)
+	assert_true(session.owns(&"cat"))
+	assert_eq(session.coins(), 100)
+	assert_eq(repository.save_count, 1)
+	assert_signal_emitted(session, "progress_changed")
+
+
+func test_buy_failures_do_not_save() -> void:
+	watch_signals(session)
+
+	assert_eq(session.buy(&"cat"), Progress.Purchase.NOT_ENOUGH_COINS)
+	assert_eq(session.buy(&"little_boy"), Progress.Purchase.ALREADY_OWNED)
+	assert_eq(session.buy(&"dragon"), Progress.Purchase.UNKNOWN_CHARACTER)
+	assert_eq(repository.save_count, 0)
+	assert_signal_not_emitted(session, "progress_changed")

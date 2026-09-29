@@ -131,3 +131,36 @@ func test_buy_unknown_character() -> void:
 	assert_eq(progress.buy(&"dragon"), Progress.Purchase.UNKNOWN_CHARACTER)
 	assert_eq(progress.coins, 1000)
 	_assert_invariants()
+
+
+func test_restore_keeps_valid_values() -> void:
+	var restored := Progress.restore(42, 310, [&"cat"])
+
+	assert_eq(restored.best_score, 42)
+	assert_eq(restored.coins, 310)
+	assert_true(restored.owns(&"cat"))
+
+
+func test_restore_always_owns_free_characters() -> void:
+	progress = Progress.restore(0, 0, [])
+
+	_assert_invariants()
+
+
+func test_restore_drops_unknown_ids() -> void:
+	progress = Progress.restore(0, 0, [&"dragon", &"cat"])
+
+	assert_false(progress.owns(&"dragon"))
+	assert_true(progress.owns(&"cat"))
+	_assert_invariants()
+
+
+func test_restore_clamps_numbers() -> void:
+	progress = Progress.restore(-3, Progress.MAX_COINS + 1, [])
+
+	assert_eq(progress.best_score, 0)
+	assert_eq(progress.coins, Progress.MAX_COINS)
+
+	progress = Progress.restore(0, -1, [])
+
+	assert_eq(progress.coins, 0)

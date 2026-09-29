@@ -4,18 +4,7 @@ const RunnerGameScene := preload("res://src/games/runner/presentation/runner_gam
 const DELTA := 0.02
 const GIRL := preload("res://assets/runner/characters/little_girl.tres")
 const BOY := preload("res://assets/runner/characters/little_boy.tres")
-
-
-class FakeBestScoreRepository:
-	extends BestScoreRepository
-
-	var stored := 0
-
-	func load_best() -> int:
-		return stored
-
-	func save_best(score: int) -> void:
-		stored = score
+const FakeProgressRepository := preload("res://tests/unit/games/runner/fake_progress_repository.gd")
 
 
 var session: RunnerSession
@@ -26,7 +15,7 @@ var ui: RunnerUi
 func before_each() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 3
-	session = RunnerSession.new(FakeBestScoreRepository.new(), rng)
+	session = RunnerSession.new(FakeProgressRepository.new(), rng)
 	game = RunnerGameScene.instantiate()
 	game.setup(session, rng)
 	add_child_autofree(game)

@@ -1,16 +1,6 @@
 extends GutTest
 
-
-class FakeProgressRepository:
-	extends ProgressRepository
-
-	var stored := Progress.fresh()
-
-	func load_progress() -> Progress:
-		return stored
-
-	func save_progress(progress: Progress) -> void:
-		stored = progress
+const FakeProgressRepository := preload("res://tests/unit/games/runner/fake_progress_repository.gd")
 
 
 func test_fake_implements_port() -> void:

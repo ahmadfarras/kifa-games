@@ -21,6 +21,17 @@ static func fresh() -> Progress:
 	return progress
 
 
+## Rebuilds saved progress, clamping values and dropping unknown ids so the invariants hold.
+static func restore(saved_best: int, saved_coins: int, saved_owned: Array[StringName]) -> Progress:
+	var progress := fresh()
+	progress.best_score = maxi(saved_best, 0)
+	progress.coins = clampi(saved_coins, 0, MAX_COINS)
+	for id in saved_owned:
+		if CharacterCatalog.is_known(id):
+			progress.owned[id] = true
+	return progress
+
+
 func owns(id: StringName) -> bool:
 	return owned.has(id)
 

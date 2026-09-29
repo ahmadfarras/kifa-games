@@ -1,21 +1,26 @@
 class_name RunnerSession
 extends RefCounted
 
-## Use cases for the Runner game: start a run, jump, advance time, record the best score.
+## Use cases for the Runner game: start a run, jump, advance time, earn coins and buy characters.
+## Progress is saved only when a run ends or a purchase succeeds.
 
-signal run_ended(score: int, best_score: int)
+signal run_ended(score: int, best_score: int, coins_earned: int)
+signal progress_changed
 
 var run: Run
-var best_score: int
+var progress: Progress
+var best_score: int:
+	get:
+		return progress.best_score
 
-var _repository: BestScoreRepository
+var _repository: ProgressRepository
 var _rng: RandomNumberGenerator
 
 
-func _init(repository: BestScoreRepository, rng: RandomNumberGenerator) -> void:
+func _init(repository: ProgressRepository, rng: RandomNumberGenerator) -> void:
 	_repository = repository
 	_rng = rng
-	best_score = repository.load_best()
+	progress = repository.load_progress()
 
 
 func start_run(world_width: float, obstacle_footprints: Array[Vector2]) -> Run:
@@ -42,8 +47,23 @@ func tick(delta: float) -> void:
 		run.tick(delta)
 
 
+func owns(id: StringName) -> bool:
+	return progress.owns(id)
+
+
+func coins() -> int:
+	return progress.coins
+
+
+func buy(id: StringName) -> Progress.Purchase:
+	var result := progress.buy(id)
+	if result == Progress.Purchase.BOUGHT:
+		_repository.save_progress(progress)
+		progress_changed.emit()
+	return result
+
+
 func _on_crashed() -> void:
-	if run.score > best_score:
-		best_score = run.score
-		_repository.save_best(best_score)
-	run_ended.emit(run.score, best_score)
+	var earned := progress.record_run(run.score)
+	_repository.save_progress(progress)
+	run_ended.emit(run.score, progress.best_score, earned)
