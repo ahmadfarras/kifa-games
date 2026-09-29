@@ -23,3 +23,5 @@ keystore.jks
 
 # OS
 .DS_Store
+
+MIGRATION.md
