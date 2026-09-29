@@ -18,8 +18,8 @@ func _init(repository: BestScoreRepository, rng: RandomNumberGenerator) -> void:
 	best_score = repository.load_best()
 
 
-func start_run(world_width: float) -> Run:
-	run = Run.new(world_width, _rng)
+func start_run(world_width: float, obstacle_footprints: Array[Vector2]) -> Run:
+	run = Run.new(world_width, _rng, obstacle_footprints)
 	run.crashed.connect(_on_crashed)
 	return run
 

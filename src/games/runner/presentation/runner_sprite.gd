@@ -2,15 +2,15 @@ class_name RunnerSprite
 extends AnimatedSprite2D
 
 ## The runner character on screen: picks the animation for the run state and keeps the feet on its position.
-## Sprite packs pad their frames differently, so size and anchor come from the visible (non-transparent)
-## pixels of each animation's first frame, not from the canvas size.
+## Sprite packs pad their frames differently, so size and anchor come from the visible body of each
+## animation's first frame, precomputed by tools/prepare_runner_assets.gd into the frames' metadata.
 
 const ANIM_IDLE := &"idle"
 const ANIM_RUN := &"run"
 const ANIM_JUMP := &"jump"
 const ANIM_DEAD := &"dead"
-
-var _visible_rects := {}
+## SpriteFrames metadata: animation -> Rect2i of the first frame's visible pixels.
+const BODIES_META := &"bodies"
 
 
 func _ready() -> void:
@@ -25,18 +25,13 @@ static func animation_for(run: Run) -> StringName:
 	return ANIM_RUN
 
 
-static func visible_rect(texture: Texture2D) -> Rect2i:
-	return texture.get_image().get_used_rect()
-
-
 func set_character(frames: SpriteFrames) -> void:
 	sprite_frames = frames
 	_anchor()
 
 
 func fit_height(height: float) -> void:
-	var body := _cached_visible_rect(sprite_frames.get_frame_texture(ANIM_IDLE, 0))
-	scale = Vector2.ONE * (height / body.size.y)
+	scale = Vector2.ONE * (height / _body(ANIM_IDLE).size.y)
 
 
 func show_idle() -> void:
@@ -67,11 +62,9 @@ func _play(next: StringName) -> void:
 
 
 func _anchor() -> void:
-	var body := _cached_visible_rect(sprite_frames.get_frame_texture(animation, 0))
+	var body := _body(animation)
 	offset = -Vector2(body.position.x + body.size.x * 0.5, body.end.y)
 
 
-func _cached_visible_rect(texture: Texture2D) -> Rect2i:
-	if not _visible_rects.has(texture):
-		_visible_rects[texture] = visible_rect(texture)
-	return _visible_rects[texture]
+func _body(animation_name: StringName) -> Rect2i:
+	return sprite_frames.get_meta(BODIES_META)[animation_name]

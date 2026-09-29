@@ -30,7 +30,7 @@ These rules (performance, file size, security) come first. They are **not negoti
 - **No secrets in the repo**: keystores, service accounts, API keys and export credentials stay git-ignored (see `.gitignore`; Godot keeps export passwords in `.godot/export_credentials.cfg`).
 - **This is a kids' app**: collect no personal data, add no analytics, ads, accounts or network calls without an explicit decision by the owner (COPPA / GDPR-K). No external links without a parental gate.
 - **Web export**: serve over HTTPS only; never pass untrusted strings to `JavaScriptBridge.eval()`.
-- **Dependencies and assets**: only from official sources, pinned to a version (e.g. GUT 9.7.1 in `addons/gut/`), with a compatible license file kept next to them. Review a third-party addon's code before adding it.
+- **Dependencies and assets**: only from official sources, pinned to a version (e.g. GUT 9.7.1 in `addons/gut/`), with a compatible license recorded: for art, add a row (author, source URL, license, date checked) to `assets/<game>/CREDITS.md`. Review a third-party addon's code before adding it.
 
 ## Commands
 
@@ -38,6 +38,7 @@ These rules (performance, file size, security) come first. They are **not negoti
 godot --headless --import                    # import project, register class_names, catch parse errors
 godot --headless -s addons/gut/gut_cmdln.gd  # run all unit tests (GUT 9.7.1, settings in .gutconfig.json)
 godot --path .                               # run the game
+godot --headless -s tools/prepare_runner_assets.gd  # regenerate Runner art from the raw packs
 ```
 
 ## Architecture: DDD + Clean Architecture
@@ -97,7 +98,9 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 
 **Runner** (`src/games/runner`)
 - **Runner** — the player character the kid picks (currently: Little Girl, Little Boy). Jumps; can't jump in mid-air.
-- **Obstacle** — object scrolling toward the runner; touching it ends the run.
+- **Obstacle** — object scrolling toward the runner; touching it ends the run. Has a **variant** (which art) and a **footprint** (width × height in units, taken from the art), which sets its hitbox.
+- **Decoration** — trees, grass and flowers placed at random along the ground. Purely visual: no collision, no effect on the game.
+- **Parallax layer** — a background strip (clouds, hills, far trees, ground) that scrolls slower the further away it is.
 - **Run** — one play session from start to crash. Has elapsed time, speed, score.
 - **Speed** — world scroll speed; grows with elapsed time, capped.
 - **Gap** — distance until the next obstacle spawns; scales with speed so it stays jumpable.
@@ -109,6 +112,10 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 - `class_name` for every domain/application/infrastructure class; typed GDScript everywhere.
 - Input only via InputMap actions (e.g. `jump`: Space, Up, click/tap), never raw keycodes.
 - Renderer is `gl_compatibility` (the only one the Web export supports). Base viewport 720×720 + stretch `canvas_items`/`expand`, so UI sizes follow the shortest screen side in both portrait and landscape.
-- Runner characters are `AnimatedSprite2D` + a `SpriteFrames` resource (`assets/runner/characters/<name>.tres`) with animations `idle`, `run`, `jump`, `dead`. Add a character = new `.tres` + a `CharacterButton` in `runner_ui.tscn` (duplicate an existing one: it must keep `toggle_mode` and the shared `characters` ButtonGroup). `RunnerSprite` sizes and anchors (feet) from the visible pixels of each animation's first frame, so differently padded packs line up without manual offsets. Match animation durations across characters via each animation's fps (e.g. run cycle ≈ 0.7 s). Obstacles, sun and flowers are still emoji placeholders. Art changes touch only `presentation/` and `assets/`.
-- Large sprite frames: set the texture import option **Process → Size Limit** so the character's visible body is ~193 px tall (same for every character), using the **same scale factor for every frame of a character** (else animations change size). Keeps VRAM low on Web/mobile.
+- Runner characters are `AnimatedSprite2D` + a generated `SpriteFrames` (`assets/runner/characters/<name>.tres`) with animations `idle`, `run`, `jump`, `dead`. **Add a character** = raw frames in `assets/runner/characters/raw/<name>/` + an entry in `CHARACTERS` in the asset tool (with fps so durations match other characters, e.g. run cycle ≈ 0.7 s) + re-run the tool + a `CharacterButton` in `runner_ui.tscn` (duplicate an existing one: it must keep `toggle_mode` and the shared `characters` ButtonGroup). `RunnerSprite` sizes and anchors the feet from `metadata/bodies` written by the tool, so no pixels are read at runtime. Art changes touch only `presentation/`, `assets/` and the tool. Emoji remain only in UI text.
+- **Textures import as lossy WebP (quality 0.8) by default** (`[importer_defaults]` in `project.godot`): small downloads, same VRAM. Switch a single texture to lossless only if lossy visibly hurts it.
+- **Character sheets:** the tool scales every character so its standing body is `BODY_HEIGHT` (193) px, crops each frame to its visible pixels and shelf-packs one sheet per animation (≤ 2048 px wide); `AtlasTexture.margin` restores the common frame box so frames stay aligned. Unused raw frames (e.g. Walk) never reach the export.
+- **Art pipeline:** raw asset packs stay in git but inside folders with a `.gdignore` (never imported or exported). `tools/prepare_runner_assets.gd` crops padding, merges/crops parallax layers to the rows that can be visible, halves their size, cuts trees out of the tree layer, and writes game-ready PNGs to `assets/runner/backgrounds/{layers,trees,decorations}/` and `assets/runner/obstacles/`. Change the tool and re-run it instead of editing generated files by hand.
+- **Obstacles:** one texture per variant in `RunnerGame.obstacle_textures`; footprint = texture size × `OBSTACLE_UNITS_PER_PIXEL`. Leave out art too small to see (e.g. pebbles). Obstacle sprites are pooled and share one `obstacle_outline.gdshader` material (red outline) so kids can tell what to jump over. **Decorations must never get this outline**, and decoration art must not look like an obstacle (or float above the ground).
+- **Background:** `RunnerBackground` fits the art to the screen height; layers are `ScrollingLayer`s (one draw call each, `texture_repeat` MIRROR for art whose edges don't match), decorations are `DecorationStrip`s (fixed sprite pool, recycled left → right with random texture/gap/size/flip; O(1) amortized per frame). The ground layer scrolls at factor 1.0 so it stays locked to obstacles.
 - Every function has GUT tests (> 90% coverage). Domain and application layers must be fully tested without the scene tree.

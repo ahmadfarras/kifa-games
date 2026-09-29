@@ -34,11 +34,15 @@ var is_over := false
 
 var _gap_left := FIRST_GAP
 var _rng: RandomNumberGenerator
+var _footprints: Array[Vector2]
 
 
-func _init(width: float, rng: RandomNumberGenerator) -> void:
+## `footprints`: size (width, height) of every obstacle variant; must not be empty.
+func _init(width: float, rng: RandomNumberGenerator, footprints: Array[Vector2]) -> void:
+	assert(not footprints.is_empty(), "Run needs at least one obstacle footprint")
 	world_width = width
 	_rng = rng
+	_footprints = footprints
 
 
 func resize(width: float) -> void:
@@ -83,7 +87,7 @@ func _scroll(step: float) -> void:
 
 func _spawn_obstacle() -> void:
 	_gap_left = speed * (MIN_GAP_SECONDS + _rng.randf() * GAP_SECONDS_VARIANCE)
-	var obstacle := Obstacle.random(world_width + SPAWN_MARGIN, _rng)
+	var obstacle := Obstacle.random(world_width + SPAWN_MARGIN, _footprints, _rng)
 	obstacles.append(obstacle)
 	obstacle_spawned.emit(obstacle)
 

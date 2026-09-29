@@ -10,5 +10,5 @@ func _ready() -> void:
 	rng.randomize()
 	var session := RunnerSession.new(JsonBestScoreRepository.new(), rng)
 	var game: RunnerGame = RUNNER_GAME_SCENE.instantiate()
-	game.setup(session)
+	game.setup(session, rng)
 	add_child(game)

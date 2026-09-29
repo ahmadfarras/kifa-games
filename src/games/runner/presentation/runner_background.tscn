@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/games/runner/presentation/runner_background.gd" id="1_runner_background"]
+[ext_resource type="Script" path="res://src/games/runner/presentation/scrolling_layer.gd" id="2_scrolling_layer"]
+[ext_resource type="Script" path="res://src/games/runner/presentation/decoration_strip.gd" id="3_decoration_strip"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/layers/clouds.png" id="4_clouds"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/layers/huge_clouds.png" id="5_huge_clouds"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/layers/hills.png" id="6_hills"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/layers/far_trees.png" id="7_far_trees"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/layers/ground.png" id="8_ground"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/trees/tree_01.png" id="9_tree_01"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/trees/tree_02.png" id="10_tree_02"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/trees/tree_03.png" id="11_tree_03"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/trees/tree_04.png" id="12_tree_04"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/grass_01.png" id="13_grass_01"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/grass_02.png" id="14_grass_02"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/grass_03.png" id="15_grass_03"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/grass_04.png" id="16_grass_04"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/grass_05.png" id="17_grass_05"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/grass_06.png" id="18_grass_06"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/grass_07.png" id="19_grass_07"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/grass_08.png" id="20_grass_08"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/grass_09.png" id="21_grass_09"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/flower_01.png" id="23_flower_01"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/flower_02.png" id="24_flower_02"]
+[ext_resource type="Texture2D" path="res://assets/runner/backgrounds/decorations/flower_03.png" id="25_flower_03"]
+
+[node name="RunnerBackground" type="Node2D"]
+script = ExtResource("1_runner_background")
+
+[node name="Clouds" type="Sprite2D" parent="."]
+texture_repeat = 2
+texture = ExtResource("4_clouds")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 1024, 1)
+script = ExtResource("2_scrolling_layer")
+scroll_factor = 0.05
+art_top = 14.0
+
+[node name="HugeClouds" type="Sprite2D" parent="."]
+texture_repeat = 3
+texture = ExtResource("5_huge_clouds")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 1024, 1)
+script = ExtResource("2_scrolling_layer")
+scroll_factor = 0.1
+art_top = 208.0
+
+[node name="Hills" type="Sprite2D" parent="."]
+texture_repeat = 3
+texture = ExtResource("6_hills")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 1024, 1)
+script = ExtResource("2_scrolling_layer")
+scroll_factor = 0.2
+art_top = 337.5
+
+[node name="FarTrees" type="Sprite2D" parent="."]
+texture_repeat = 3
+texture = ExtResource("7_far_trees")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 1024, 1)
+script = ExtResource("2_scrolling_layer")
+scroll_factor = 0.4
+art_top = 415.5
+
+[node name="Sand" type="ColorRect" parent="."]
+mouse_filter = 2
+color = Color(0.984, 0.875, 0.678, 1)
+
+[node name="Trees" type="Node2D" parent="."]
+script = ExtResource("3_decoration_strip")
+textures = Array[Texture2D]([ExtResource("9_tree_01"), ExtResource("10_tree_02"), ExtResource("11_tree_03"), ExtResource("12_tree_04")])
+scroll_factor = 0.6
+min_gap = 10.0
+max_gap = 180.0
+size_variance = 0.12
+
+[node name="Ground" type="Sprite2D" parent="."]
+texture_repeat = 2
+texture = ExtResource("8_ground")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 1024, 1)
+script = ExtResource("2_scrolling_layer")
+scroll_factor = 1.0
+art_top = 602.0
+
+[node name="Plants" type="Node2D" parent="."]
+script = ExtResource("3_decoration_strip")
+textures = Array[Texture2D]([ExtResource("13_grass_01"), ExtResource("14_grass_02"), ExtResource("15_grass_03"), ExtResource("16_grass_04"), ExtResource("17_grass_05"), ExtResource("18_grass_06"), ExtResource("19_grass_07"), ExtResource("20_grass_08"), ExtResource("21_grass_09"), ExtResource("23_flower_01"), ExtResource("24_flower_02"), ExtResource("25_flower_03")])
+min_gap = 30.0
+max_gap = 220.0
+base_scale = 0.75
+size_variance = 0.2
+depth_jitter = 14.0

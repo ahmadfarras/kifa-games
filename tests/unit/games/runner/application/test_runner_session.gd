@@ -2,6 +2,7 @@ extends GutTest
 
 const WORLD_WIDTH := 1.8
 const DELTA := 0.01
+const FOOTPRINTS: Array[Vector2] = [Vector2(0.1, 0.1)]
 
 
 class FakeBestScoreRepository:
@@ -32,7 +33,7 @@ func before_each() -> void:
 
 func _crash_with_score(score: int) -> void:
 	session.run.score = score
-	session.run.obstacles.append(Obstacle.new(session.run.runner_x(), 0.1, Obstacle.Kind.ROCK))
+	session.run.obstacles.append(Obstacle.new(session.run.runner_x(), FOOTPRINTS[0], 0))
 	session.run.elapsed = score / Run.SCORE_PER_SECOND
 	session.tick(DELTA)
 
@@ -47,7 +48,7 @@ func test_no_run_before_start() -> void:
 
 
 func test_start_run_creates_running_run() -> void:
-	var run := session.start_run(WORLD_WIDTH)
+	var run := session.start_run(WORLD_WIDTH, FOOTPRINTS)
 
 	assert_eq(session.run, run)
 	assert_eq(run.world_width, WORLD_WIDTH)
@@ -55,9 +56,9 @@ func test_start_run_creates_running_run() -> void:
 
 
 func test_start_run_replaces_previous_run() -> void:
-	var first := session.start_run(WORLD_WIDTH)
+	var first := session.start_run(WORLD_WIDTH, FOOTPRINTS)
 
-	var second := session.start_run(WORLD_WIDTH)
+	var second := session.start_run(WORLD_WIDTH, FOOTPRINTS)
 
 	assert_ne(first, second)
 	assert_eq(session.run, second)
@@ -70,7 +71,7 @@ func test_resize_world_without_run_does_nothing() -> void:
 
 
 func test_resize_world_resizes_current_run() -> void:
-	session.start_run(WORLD_WIDTH)
+	session.start_run(WORLD_WIDTH, FOOTPRINTS)
 
 	session.resize_world(3.0)
 
@@ -82,13 +83,13 @@ func test_jump_without_run_is_ignored() -> void:
 
 
 func test_jump_during_run() -> void:
-	session.start_run(WORLD_WIDTH)
+	session.start_run(WORLD_WIDTH, FOOTPRINTS)
 
 	assert_true(session.jump())
 
 
 func test_jump_after_crash_is_ignored() -> void:
-	session.start_run(WORLD_WIDTH)
+	session.start_run(WORLD_WIDTH, FOOTPRINTS)
 	_crash_with_score(1)
 
 	assert_false(session.jump())
@@ -101,7 +102,7 @@ func test_tick_without_run_does_nothing() -> void:
 
 
 func test_tick_advances_run() -> void:
-	session.start_run(WORLD_WIDTH)
+	session.start_run(WORLD_WIDTH, FOOTPRINTS)
 
 	session.tick(DELTA)
 
@@ -109,7 +110,7 @@ func test_tick_advances_run() -> void:
 
 
 func test_crash_with_new_record_saves_best() -> void:
-	session.start_run(WORLD_WIDTH)
+	session.start_run(WORLD_WIDTH, FOOTPRINTS)
 	watch_signals(session)
 
 	_crash_with_score(9)
@@ -121,7 +122,7 @@ func test_crash_with_new_record_saves_best() -> void:
 
 
 func test_crash_below_record_keeps_best() -> void:
-	session.start_run(WORLD_WIDTH)
+	session.start_run(WORLD_WIDTH, FOOTPRINTS)
 	watch_signals(session)
 
 	_crash_with_score(3)
@@ -132,7 +133,7 @@ func test_crash_below_record_keeps_best() -> void:
 
 
 func test_tick_after_crash_does_not_end_twice() -> void:
-	session.start_run(WORLD_WIDTH)
+	session.start_run(WORLD_WIDTH, FOOTPRINTS)
 	_crash_with_score(1)
 	watch_signals(session)
 

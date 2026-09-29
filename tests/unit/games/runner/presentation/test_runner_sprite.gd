@@ -14,11 +14,11 @@ func before_each() -> void:
 	sprite.animation = RunnerSprite.ANIM_IDLE
 	sprite.centered = false
 	add_child_autofree(sprite)
-	run = Run.new(WORLD_WIDTH, RandomNumberGenerator.new())
+	run = Run.new(WORLD_WIDTH, RandomNumberGenerator.new(), [Vector2(0.1, 0.1)] as Array[Vector2])
 
 
 func _visible_rect(frames: SpriteFrames, animation: StringName) -> Rect2i:
-	return RunnerSprite.visible_rect(frames.get_frame_texture(animation, 0))
+	return frames.get_meta(RunnerSprite.BODIES_META)[animation]
 
 
 func _expected_offset(frames: SpriteFrames, animation: StringName) -> Vector2:
@@ -26,14 +26,21 @@ func _expected_offset(frames: SpriteFrames, animation: StringName) -> Vector2:
 	return -Vector2(body.position.x + body.size.x * 0.5, body.end.y)
 
 
-func test_visible_rect_ignores_transparent_padding() -> void:
-	var texture := BOY.get_frame_texture(RunnerSprite.ANIM_IDLE, 0)
+func test_body_metadata_matches_first_frame_art() -> void:
+	# Frames are cropped to their visible pixels; the margin places them inside the animation's frame box.
+	for frames: SpriteFrames in [GIRL, BOY]:
+		for animation in [RunnerSprite.ANIM_IDLE, RunnerSprite.ANIM_RUN, RunnerSprite.ANIM_JUMP, RunnerSprite.ANIM_DEAD]:
+			var first := frames.get_frame_texture(animation, 0) as AtlasTexture
+			var expected := Rect2i(Vector2i(first.margin.position), Vector2i(first.region.size))
+			assert_eq(_visible_rect(frames, animation), expected, "%s %s" % [frames.resource_path, animation])
 
-	var body := RunnerSprite.visible_rect(texture)
 
-	assert_gt(body.size.x, 0)
-	assert_lt(body.size.x, texture.get_width())
-	assert_lt(body.end.y, texture.get_height())
+func test_frames_of_an_animation_share_one_box() -> void:
+	for frames: SpriteFrames in [GIRL, BOY]:
+		for animation in [RunnerSprite.ANIM_IDLE, RunnerSprite.ANIM_RUN, RunnerSprite.ANIM_JUMP, RunnerSprite.ANIM_DEAD]:
+			var size := frames.get_frame_texture(animation, 0).get_size()
+			for i in frames.get_frame_count(animation):
+				assert_eq(frames.get_frame_texture(animation, i).get_size(), size)
 
 
 func test_ready_anchors_feet_of_current_animation() -> void:

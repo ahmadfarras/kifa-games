@@ -4,43 +4,41 @@ extends Node2D
 ## Draws the Runner world and forwards input to RunnerSession.
 ## Domain units are converted to pixels with _unit (= shortest screen side).
 
-const GROUND_Y_RATIO := 0.8
-const GROUND_EDGE_HEIGHT := 0.012
-const SUN_CENTER_RATIO := Vector2(0.88, 0.12)
-const SUN_SIZE := 0.1
-const FLOWER_SIZE := 0.045
-const FLOWER_GAP := 0.55
-const OBSTACLE_GLYPH_RATIO := 1.6
-const OBSTACLE_CENTER_RATIO := 0.55
 # Visible body height relative to the hitbox size; a bit bigger reads better on small screens.
 const RUNNER_DRAW_SCALE := 1.25
-const OBSTACLE_GLYPHS := {
-	Obstacle.Kind.CACTUS: "🌵",
-	Obstacle.Kind.ROCK: "🪨",
-	Obstacle.Kind.LOG: "🪵",
-	Obstacle.Kind.MUSHROOM: "🍄",
-}
+## Size of one obstacle texture pixel in domain units, so obstacle footprints (hitboxes) come from the art.
+const OBSTACLE_UNITS_PER_PIXEL := 0.0013
+
+## One texture per obstacle variant; the domain picks variants by index.
+@export var obstacle_textures: Array[Texture2D] = []
+## Shared by every obstacle sprite (one material keeps them batchable); outlines obstacles so kids can
+## tell them apart from decorations.
+@export var obstacle_material: Material
 
 var _session: RunnerSession
+var _rng: RandomNumberGenerator
 var _unit := 1.0
 var _ground_y := 0.0
-var _obstacle_labels := {}
+var _obstacle_footprints: Array[Vector2] = []
+var _obstacle_sprites := {}
+var _spare_obstacle_sprites: Array[Sprite2D] = []
 
-@onready var _sun: Label = $Sun
-@onready var _ground: ColorRect = $Ground
-@onready var _ground_edge: ColorRect = $Ground/Edge
-@onready var _flowers: Node2D = $Flowers
+@onready var _background: RunnerBackground = $Background
 @onready var _obstacles: Node2D = $Obstacles
 @onready var _runner: RunnerSprite = $Runner
 @onready var _game_over_timer: Timer = $GameOverTimer
 @onready var _ui: RunnerUi = %RunnerUi
 
 
-func setup(session: RunnerSession) -> void:
+func setup(session: RunnerSession, rng: RandomNumberGenerator) -> void:
 	_session = session
+	_rng = rng
 
 
 func _ready() -> void:
+	for texture in obstacle_textures:
+		_obstacle_footprints.append(texture.get_size() * OBSTACLE_UNITS_PER_PIXEL)
+	_background.setup(_rng)
 	_session.run_ended.connect(_on_run_ended)
 	_ui.character_selected.connect(_on_character_selected)
 	_ui.runner_chosen.connect(_on_runner_chosen)
@@ -75,7 +73,8 @@ func _on_runner_chosen(frames: SpriteFrames) -> void:
 
 func _start_run() -> void:
 	_clear_obstacles()
-	var run := _session.start_run(get_viewport_rect().size.x / _unit)
+	_background.reset()
+	var run := _session.start_run(get_viewport_rect().size.x / _unit, _obstacle_footprints)
 	run.obstacle_spawned.connect(_on_obstacle_spawned)
 	run.obstacle_removed.connect(_on_obstacle_removed)
 	run.score_changed.connect(_ui.set_score)
@@ -94,46 +93,55 @@ func _on_game_over_timer_timeout() -> void:
 
 
 func _on_obstacle_spawned(obstacle: Obstacle) -> void:
-	var label := Label.new()
-	label.text = OBSTACLE_GLYPHS[obstacle.kind]
-	_obstacles.add_child(label)
-	_obstacle_labels[obstacle] = label
-	_fit_obstacle(obstacle, label)
+	var sprite: Sprite2D = _spare_obstacle_sprites.pop_back() if not _spare_obstacle_sprites.is_empty() else _new_obstacle_sprite()
+	var texture := obstacle_textures[obstacle.variant]
+	sprite.texture = texture
+	sprite.offset = Vector2(-texture.get_width() * 0.5, -texture.get_height())
+	_obstacle_sprites[obstacle] = sprite
+	_fit_obstacle(obstacle, sprite)
+	sprite.show()
 
 
 func _on_obstacle_removed(obstacle: Obstacle) -> void:
-	_obstacle_labels[obstacle].queue_free()
-	_obstacle_labels.erase(obstacle)
+	_recycle(_obstacle_sprites[obstacle])
+	_obstacle_sprites.erase(obstacle)
 
 
 func _clear_obstacles() -> void:
-	for label: Label in _obstacle_labels.values():
-		label.queue_free()
-	_obstacle_labels.clear()
+	for sprite: Sprite2D in _obstacle_sprites.values():
+		_recycle(sprite)
+	_obstacle_sprites.clear()
+
+
+func _new_obstacle_sprite() -> Sprite2D:
+	var sprite := Sprite2D.new()
+	sprite.centered = false
+	sprite.material = obstacle_material
+	_obstacles.add_child(sprite)
+	return sprite
+
+
+func _recycle(sprite: Sprite2D) -> void:
+	sprite.hide()
+	_spare_obstacle_sprites.append(sprite)
 
 
 func _sync_world() -> void:
 	var run := _session.run
 	_update_runner(run)
-	for obstacle: Obstacle in _obstacle_labels:
-		var label: Label = _obstacle_labels[obstacle]
-		label.position.x = obstacle.x * _unit - label.size.x * 0.5
-	_flowers.position.x = -fmod(run.distance * _unit, FLOWER_GAP * _unit)
+	for obstacle: Obstacle in _obstacle_sprites:
+		_obstacle_sprites[obstacle].position.x = obstacle.x * _unit
+	_background.scroll(run.distance * _unit)
 
 
 func _layout() -> void:
 	var screen := get_viewport_rect().size
 	_unit = minf(screen.x, screen.y)
-	_ground_y = screen.y * GROUND_Y_RATIO
-	_ground.position = Vector2(0.0, _ground_y)
-	_ground.size = Vector2(screen.x, screen.y - _ground_y)
-	_ground_edge.size = Vector2(screen.x, GROUND_EDGE_HEIGHT * _unit)
-	_fit_label(_sun, SUN_SIZE)
-	_place(_sun, screen * SUN_CENTER_RATIO)
+	_background.fit(screen)
+	_ground_y = _background.ground_y()
 	_fit_runner()
-	_build_flowers(screen)
-	for obstacle: Obstacle in _obstacle_labels:
-		_fit_obstacle(obstacle, _obstacle_labels[obstacle])
+	for obstacle: Obstacle in _obstacle_sprites:
+		_fit_obstacle(obstacle, _obstacle_sprites[obstacle])
 	if _session.run == null:
 		_runner.show_idle()
 		_runner.position = Vector2(screen.x * Run.RUNNER_X_RATIO, _ground_y)
@@ -151,30 +159,6 @@ func _fit_runner() -> void:
 	_runner.fit_height(Runner.SIZE * RUNNER_DRAW_SCALE * _unit)
 
 
-func _build_flowers(screen: Vector2) -> void:
-	for flower in _flowers.get_children():
-		flower.queue_free()
-	var gap := FLOWER_GAP * _unit
-	var flower_y := _ground_y + (screen.y - _ground_y) * 0.5
-	for i in ceili(screen.x / gap) + 2:
-		var flower := Label.new()
-		flower.text = "🌼"
-		_flowers.add_child(flower)
-		_fit_label(flower, FLOWER_SIZE)
-		_place(flower, Vector2(i * gap, flower_y))
-
-
-func _fit_obstacle(obstacle: Obstacle, label: Label) -> void:
-	_fit_label(label, obstacle.size * OBSTACLE_GLYPH_RATIO)
-	var center_y := _ground_y - obstacle.size * OBSTACLE_CENTER_RATIO * _unit
-	_place(label, Vector2(obstacle.x * _unit, center_y))
-
-
-func _fit_label(label: Label, size_in_units: float) -> void:
-	label.add_theme_font_size_override("font_size", maxi(1, int(size_in_units * _unit)))
-	label.reset_size()
-	label.pivot_offset = label.size * 0.5
-
-
-func _place(label: Label, center: Vector2) -> void:
-	label.position = center - label.size * 0.5
+func _fit_obstacle(obstacle: Obstacle, sprite: Sprite2D) -> void:
+	sprite.scale = Vector2.ONE * OBSTACLE_UNITS_PER_PIXEL * _unit
+	sprite.position = Vector2(obstacle.x * _unit, _ground_y)

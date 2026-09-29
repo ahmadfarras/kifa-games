@@ -28,7 +28,7 @@ func before_each() -> void:
 	rng.seed = 3
 	session = RunnerSession.new(FakeBestScoreRepository.new(), rng)
 	game = RunnerGameScene.instantiate()
-	game.setup(session)
+	game.setup(session, rng)
 	add_child_autofree(game)
 	ui = game.get_node("%RunnerUi")
 
@@ -44,16 +44,21 @@ func _tick_until_obstacle() -> void:
 
 
 func _crash() -> void:
-	session.run.obstacles.append(Obstacle.new(session.run.runner_x(), 0.1, Obstacle.Kind.ROCK))
+	session.run.obstacles.append(Obstacle.new(session.run.runner_x(), Vector2(0.1, 0.1), 0))
 	game._process(DELTA)
 
 
-func _obstacle_label_count() -> int:
-	var count := 0
-	for label in game.get_node("Obstacles").get_children():
-		if not label.is_queued_for_deletion():
-			count += 1
-	return count
+func _visible_obstacle_sprites() -> Array[Sprite2D]:
+	var visible: Array[Sprite2D] = []
+	for sprite: Sprite2D in game.get_node("Obstacles").get_children():
+		if sprite.visible:
+			visible.append(sprite)
+	return visible
+
+
+func _unit() -> float:
+	var screen := game.get_viewport_rect().size
+	return minf(screen.x, screen.y)
 
 
 func test_starts_on_start_screen_without_processing() -> void:
@@ -62,11 +67,24 @@ func test_starts_on_start_screen_without_processing() -> void:
 	assert_null(session.run)
 
 
-func test_layout_places_ground_and_flowers() -> void:
-	var screen := game.get_viewport_rect().size
+func test_ground_line_comes_from_background() -> void:
+	assert_eq(game._ground_y, game.get_node("Background").ground_y())
+	assert_gt(game._ground_y, 0.0)
 
-	assert_almost_eq(game.get_node("Ground").position.y, screen.y * RunnerGame.GROUND_Y_RATIO, 0.01)
-	assert_gt(game.get_node("Flowers").get_child_count(), 0)
+
+func test_obstacle_footprints_come_from_art() -> void:
+	var textures: Array[Texture2D] = game.obstacle_textures
+
+	assert_eq(game._obstacle_footprints.size(), textures.size())
+	for i in textures.size():
+		assert_eq(game._obstacle_footprints[i], textures[i].get_size() * RunnerGame.OBSTACLE_UNITS_PER_PIXEL)
+
+
+func test_every_obstacle_is_jumpable() -> void:
+	var apex := Runner.JUMP_VELOCITY * Runner.JUMP_VELOCITY / (2.0 * Runner.GRAVITY)
+
+	for footprint in game._obstacle_footprints:
+		assert_lt(footprint.y * Obstacle.HITBOX_HEIGHT_RATIO, apex)
 
 
 func test_choosing_runner_starts_run() -> void:
@@ -100,13 +118,13 @@ func test_other_input_is_ignored() -> void:
 	assert_true(session.run.runner.is_on_ground)
 
 
-func test_process_advances_run_and_scrolls_flowers() -> void:
+func test_process_advances_run_and_scrolls_background() -> void:
 	_choose_runner()
 
 	game._process(DELTA)
 
 	assert_gt(session.run.elapsed, 0.0)
-	assert_lt(game.get_node("Flowers").position.x, 0.0)
+	assert_lt(game.get_node("Background/Plants").position.x, 0.0)
 
 
 func test_runner_rises_on_screen_when_jumping() -> void:
@@ -135,7 +153,7 @@ func test_runner_feet_are_on_ground() -> void:
 
 func test_runner_body_scaled_to_draw_size() -> void:
 	var runner: RunnerSprite = game.get_node("Runner")
-	var body := RunnerSprite.visible_rect(runner.sprite_frames.get_frame_texture(RunnerSprite.ANIM_IDLE, 0))
+	var body: Rect2i = runner.sprite_frames.get_meta(RunnerSprite.BODIES_META)[RunnerSprite.ANIM_IDLE]
 
 	assert_almost_eq(body.size.y * runner.scale.y, Runner.SIZE * RunnerGame.RUNNER_DRAW_SCALE * game._unit, 0.01)
 
@@ -180,25 +198,71 @@ func test_new_run_after_crash_plays_run_again() -> void:
 	assert_eq(game.get_node("Runner").animation, RunnerSprite.ANIM_RUN)
 
 
-func test_spawned_obstacle_gets_a_label_at_its_position() -> void:
+func test_spawned_obstacle_shows_its_art_on_the_ground() -> void:
 	_choose_runner()
 
 	_tick_until_obstacle()
 
-	assert_eq(_obstacle_label_count(), 1)
-	var label: Label = game.get_node("Obstacles").get_child(0)
-	var expected_center := session.run.obstacles[0].x * minf(game.get_viewport_rect().size.x, game.get_viewport_rect().size.y)
-	assert_almost_eq(label.position.x + label.size.x * 0.5, expected_center, 0.5)
+	var obstacle := session.run.obstacles[0]
+	var sprites := _visible_obstacle_sprites()
+	assert_eq(sprites.size(), 1)
+	assert_eq(sprites[0].texture, game.obstacle_textures[obstacle.variant])
+	assert_almost_eq(sprites[0].position.x, obstacle.x * _unit(), 0.01)
+	assert_almost_eq(sprites[0].position.y, game._ground_y, 0.01)
 
 
-func test_removed_obstacle_frees_its_label() -> void:
+func test_obstacle_sprite_is_drawn_at_footprint_size() -> void:
+	_choose_runner()
+	_tick_until_obstacle()
+
+	var obstacle := session.run.obstacles[0]
+	var sprite := _visible_obstacle_sprites()[0]
+	assert_almost_eq(sprite.texture.get_height() * sprite.scale.y, obstacle.height * _unit(), 0.01)
+	assert_eq(sprite.offset, Vector2(-sprite.texture.get_width() * 0.5, -sprite.texture.get_height()))
+
+
+func test_obstacles_share_outline_material() -> void:
+	_choose_runner()
+	_tick_until_obstacle()
+
+	var material := _visible_obstacle_sprites()[0].material as ShaderMaterial
+	assert_not_null(material)
+	assert_eq(material, game.obstacle_material)
+	assert_eq(material.shader.resource_path, "res://src/games/runner/presentation/obstacle_outline.gdshader")
+
+
+func test_obstacle_moves_with_world() -> void:
+	_choose_runner()
+	_tick_until_obstacle()
+	var sprite := _visible_obstacle_sprites()[0]
+	var start_x := sprite.position.x
+
+	session.run.runner.height = 10.0
+	game._process(DELTA)
+
+	assert_lt(sprite.position.x, start_x)
+
+
+func test_removed_obstacle_hides_its_sprite() -> void:
 	_choose_runner()
 	_tick_until_obstacle()
 	var obstacle := session.run.obstacles[0]
 
 	session.run.obstacle_removed.emit(obstacle)
 
-	assert_eq(_obstacle_label_count(), 0)
+	assert_eq(_visible_obstacle_sprites().size(), 0)
+
+
+func test_obstacle_sprites_are_reused() -> void:
+	_choose_runner()
+	_tick_until_obstacle()
+	session.run.obstacle_removed.emit(session.run.obstacles.pop_front())
+	var pool_size := game.get_node("Obstacles").get_child_count()
+
+	_tick_until_obstacle()
+
+	assert_eq(game.get_node("Obstacles").get_child_count(), pool_size)
+	assert_eq(_visible_obstacle_sprites().size(), 1)
 
 
 func test_score_change_updates_score_label() -> void:
@@ -238,7 +302,7 @@ func test_play_again_starts_fresh_run_without_old_obstacles() -> void:
 
 	assert_ne(session.run, old_run)
 	assert_true(session.is_running())
-	assert_eq(_obstacle_label_count(), 0)
+	assert_eq(_visible_obstacle_sprites().size(), 0)
 
 
 func test_change_runner_returns_to_start_screen() -> void:
@@ -259,4 +323,4 @@ func test_relayout_during_run_resizes_world() -> void:
 
 	var screen := game.get_viewport_rect().size
 	assert_almost_eq(session.run.world_width, screen.x / minf(screen.x, screen.y), 0.0001)
-	assert_eq(_obstacle_label_count(), 1)
+	assert_eq(_visible_obstacle_sprites().size(), 1)

@@ -2,6 +2,7 @@ extends GutTest
 
 const WORLD_WIDTH := 1.8
 const DELTA := 0.01
+const FOOTPRINTS: Array[Vector2] = [Vector2(0.1, 0.1), Vector2(0.15, 0.06)]
 
 var run: Run
 
@@ -9,7 +10,7 @@ var run: Run
 func before_each() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1
-	run = Run.new(WORLD_WIDTH, rng)
+	run = Run.new(WORLD_WIDTH, rng, FOOTPRINTS)
 
 
 func _tick_until_first_obstacle() -> void:
@@ -84,6 +85,16 @@ func test_tick_moves_runner_in_air() -> void:
 	assert_gt(run.runner.height, 0.0)
 
 
+func test_spawned_obstacles_use_given_footprints() -> void:
+	for i in 2000:
+		run.runner.height = 10.0
+		run.tick(DELTA)
+
+	assert_gt(run.obstacles.size(), 0)
+	for obstacle in run.obstacles:
+		assert_eq(Vector2(obstacle.width, obstacle.height), FOOTPRINTS[obstacle.variant])
+
+
 func test_first_obstacle_spawns_at_right_edge() -> void:
 	watch_signals(run)
 
@@ -124,7 +135,7 @@ func test_next_gap_scales_with_speed() -> void:
 
 
 func test_obstacle_removed_after_leaving_screen() -> void:
-	var obstacle := Obstacle.new(Run.DESPAWN_X + 0.001, 0.1, Obstacle.Kind.ROCK)
+	var obstacle := Obstacle.new(Run.DESPAWN_X + 0.001, FOOTPRINTS[0], 0)
 	run.obstacles.append(obstacle)
 	watch_signals(run)
 
@@ -154,7 +165,7 @@ func test_score_signal_not_emitted_without_change() -> void:
 
 
 func test_crashes_when_hitting_obstacle() -> void:
-	run.obstacles.append(Obstacle.new(run.runner_x(), 0.1, Obstacle.Kind.CACTUS))
+	run.obstacles.append(Obstacle.new(run.runner_x(), FOOTPRINTS[0], 0))
 	watch_signals(run)
 
 	run.tick(DELTA)
@@ -164,7 +175,7 @@ func test_crashes_when_hitting_obstacle() -> void:
 
 
 func test_no_crash_when_jumping_over() -> void:
-	run.obstacles.append(Obstacle.new(run.runner_x(), 0.1, Obstacle.Kind.CACTUS))
+	run.obstacles.append(Obstacle.new(run.runner_x(), FOOTPRINTS[0], 0))
 	run.runner.height = 1.0
 	run.runner.is_on_ground = false
 
