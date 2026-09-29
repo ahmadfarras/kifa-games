@@ -61,6 +61,17 @@ func test_lands_back_on_ground_after_jump() -> void:
 	assert_eq(runner.velocity, 0.0)
 
 
+func test_jump_lasts_airtime() -> void:
+	runner.jump()
+	var time := 0.0
+
+	while not runner.is_on_ground:
+		runner.tick(DELTA)
+		time += DELTA
+
+	assert_almost_eq(time, Runner.AIRTIME, DELTA)
+
+
 func test_can_jump_again_after_landing() -> void:
 	runner.jump()
 	for i in 200:

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://src/games/runner/presentation/runner_game.gd" id="1_game"]
 [ext_resource type="PackedScene" path="res://src/games/runner/presentation/runner_ui.tscn" id="2_ui"]
+[ext_resource type="SpriteFrames" path="res://assets/runner/characters/little_girl.tres" id="3_girl"]
 
 [sub_resource type="Gradient" id="sky_colors"]
 offsets = PackedFloat32Array(0, 0.7, 1)
@@ -45,12 +46,14 @@ color = Color(0.482, 0.788, 0.482, 1)
 
 [node name="Obstacles" type="Node2D" parent="."]
 
-[node name="Runner" type="Label" parent="."]
-scale = Vector2(-1, 1)
-text = "🐰"
+[node name="Runner" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("3_girl")
+animation = &"idle"
+autoplay = "idle"
+centered = false
 
 [node name="GameOverTimer" type="Timer" parent="."]
-wait_time = 0.6
+wait_time = 1.0
 one_shot = true
 
 [node name="UI" type="CanvasLayer" parent="."]

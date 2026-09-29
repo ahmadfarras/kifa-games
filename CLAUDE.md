@@ -68,7 +68,7 @@ DDD and clean architecture serve readability and testability, not ceremony:
 Use these names in code, tests and conversation. Add terms when a game is ported.
 
 **Runner** (`src/games/runner`)
-- **Runner** — the player character the kid picks (🐰, 🦖, 🐱). Jumps; can't jump in mid-air.
+- **Runner** — the player character the kid picks (currently: Little Girl). Jumps; can't jump in mid-air.
 - **Obstacle** — object scrolling toward the runner; touching it ends the run.
 - **Run** — one play session from start to crash. Has elapsed time, speed, score.
 - **Speed** — world scroll speed; grows with elapsed time, capped.
@@ -81,5 +81,6 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 - `class_name` for every domain/application/infrastructure class; typed GDScript everywhere.
 - Input only via InputMap actions (e.g. `jump`: Space, Up, click/tap), never raw keycodes.
 - Renderer is `gl_compatibility` (the only one the Web export supports). Base viewport 720×720 + stretch `canvas_items`/`expand`, so UI sizes follow the shortest screen side in both portrait and landscape.
-- Sprites are currently emoji in `Label`s (placeholder art). Swapping to real assets touches only `presentation/`.
+- Runner characters are `AnimatedSprite2D` + a `SpriteFrames` resource (`assets/runner/characters/<name>.tres`) with animations `idle`, `run`, `jump`, `dead`. Add a character = new `.tres` + a `CharacterButton` in `runner_ui.tscn`. Obstacles, sun and flowers are still emoji placeholders. Art changes touch only `presentation/` and `assets/`.
+- Large sprite frames: set the texture import option **Process → Size Limit** so frames render ~200 px tall, using the **same scale factor for every frame of a character** (else animations change size). Keeps VRAM low on Web/mobile.
 - Every function has GUT tests (> 90% coverage). Domain and application layers must be fully tested without the scene tree.

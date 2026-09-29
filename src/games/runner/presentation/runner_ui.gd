@@ -3,7 +3,7 @@ extends Control
 
 ## Start screen, score bar and game-over screen. Emits what the kid pressed; holds no game rules.
 
-signal runner_chosen(character: String)
+signal runner_chosen(frames: SpriteFrames)
 signal play_again_pressed
 signal change_runner_pressed
 
@@ -22,8 +22,8 @@ const SCORE_POP_SECONDS := 0.15
 
 
 func _ready() -> void:
-	for button: Button in _character_buttons.get_children():
-		button.pressed.connect(runner_chosen.emit.bind(button.text))
+	for button: CharacterButton in _character_buttons.get_children():
+		button.pressed.connect(runner_chosen.emit.bind(button.frames))
 	%PlayAgainButton.pressed.connect(play_again_pressed.emit)
 	%ChangeRunnerButton.pressed.connect(change_runner_pressed.emit)
 

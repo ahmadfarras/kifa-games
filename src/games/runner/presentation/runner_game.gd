@@ -12,8 +12,12 @@ const FLOWER_SIZE := 0.045
 const FLOWER_GAP := 0.55
 const OBSTACLE_GLYPH_RATIO := 1.6
 const OBSTACLE_CENTER_RATIO := 0.55
-const BOB_SPEED := 14.0
-const BOB_HEIGHT_RATIO := 0.08
+# Sprite frames include empty padding, so draw them larger than the hitbox size.
+const RUNNER_DRAW_SCALE := 1.3
+const ANIM_IDLE := &"idle"
+const ANIM_RUN := &"run"
+const ANIM_JUMP := &"jump"
+const ANIM_DEAD := &"dead"
 const OBSTACLE_GLYPHS := {
 	Obstacle.Kind.CACTUS: "🌵",
 	Obstacle.Kind.ROCK: "🪨",
@@ -31,7 +35,7 @@ var _obstacle_labels := {}
 @onready var _ground_edge: ColorRect = $Ground/Edge
 @onready var _flowers: Node2D = $Flowers
 @onready var _obstacles: Node2D = $Obstacles
-@onready var _runner: Label = $Runner
+@onready var _runner: AnimatedSprite2D = $Runner
 @onready var _game_over_timer: Timer = $GameOverTimer
 @onready var _ui: RunnerUi = %RunnerUi
 
@@ -62,9 +66,9 @@ func _process(delta: float) -> void:
 	_sync_world()
 
 
-func _on_runner_chosen(character: String) -> void:
-	_runner.text = character
-	_fit_label(_runner, Runner.SIZE)
+func _on_runner_chosen(frames: SpriteFrames) -> void:
+	_runner.sprite_frames = frames
+	_fit_runner()
 	_start_run()
 
 
@@ -109,11 +113,7 @@ func _clear_obstacles() -> void:
 
 func _sync_world() -> void:
 	var run := _session.run
-	var bob := 0.0
-	if run.runner.is_on_ground and not run.is_over:
-		bob = absf(sin(run.elapsed * BOB_SPEED)) * Runner.SIZE * BOB_HEIGHT_RATIO
-	var runner_bottom := _ground_y - (run.runner.height + bob) * _unit
-	_place(_runner, Vector2(run.runner_x() * _unit, runner_bottom - Runner.SIZE * 0.5 * _unit))
+	_update_runner(run)
 	for obstacle: Obstacle in _obstacle_labels:
 		var label: Label = _obstacle_labels[obstacle]
 		label.position.x = obstacle.x * _unit - label.size.x * 0.5
@@ -129,15 +129,60 @@ func _layout() -> void:
 	_ground_edge.size = Vector2(screen.x, GROUND_EDGE_HEIGHT * _unit)
 	_fit_label(_sun, SUN_SIZE)
 	_place(_sun, screen * SUN_CENTER_RATIO)
-	_fit_label(_runner, Runner.SIZE)
+	_fit_runner()
 	_build_flowers(screen)
 	for obstacle: Obstacle in _obstacle_labels:
 		_fit_obstacle(obstacle, _obstacle_labels[obstacle])
 	if _session.run == null:
-		_place(_runner, Vector2(screen.x * Run.RUNNER_X_RATIO, _ground_y - Runner.SIZE * 0.5 * _unit))
+		_play_runner(ANIM_IDLE)
+		_runner.position = Vector2(screen.x * Run.RUNNER_X_RATIO, _ground_y)
 		return
 	_session.resize_world(screen.x / _unit)
 	_sync_world()
+
+
+func _update_runner(run: Run) -> void:
+	var animation := _runner_animation(run)
+	_play_runner(animation)
+	_runner.speed_scale = _runner_speed_scale(animation, run)
+	_runner.position = Vector2(run.runner_x() * _unit, _ground_y - run.runner.height * _unit)
+
+
+static func _runner_animation(run: Run) -> StringName:
+	if run.is_over:
+		return ANIM_DEAD
+	if not run.runner.is_on_ground:
+		return ANIM_JUMP
+	return ANIM_RUN
+
+
+func _runner_speed_scale(animation: StringName, run: Run) -> float:
+	if animation == ANIM_RUN:
+		return run.speed / Run.START_SPEED
+	if animation == ANIM_JUMP:
+		# Stretch the jump animation so it lasts exactly one jump.
+		var frames := _runner.sprite_frames
+		return frames.get_frame_count(ANIM_JUMP) / (frames.get_animation_speed(ANIM_JUMP) * Runner.AIRTIME)
+	return 1.0
+
+
+func _play_runner(animation: StringName) -> void:
+	if _runner.animation == animation:
+		return
+	_runner.play(animation)
+	_anchor_runner()
+
+
+func _fit_runner() -> void:
+	var idle_height := _runner.sprite_frames.get_frame_texture(ANIM_IDLE, 0).get_height()
+	_runner.scale = Vector2.ONE * (Runner.SIZE * RUNNER_DRAW_SCALE * _unit / idle_height)
+	_anchor_runner()
+
+
+func _anchor_runner() -> void:
+	# Animations have different canvas sizes; anchor every frame at bottom-center (the feet).
+	var texture := _runner.sprite_frames.get_frame_texture(_runner.animation, 0)
+	_runner.offset = Vector2(-texture.get_width() * 0.5, -texture.get_height())
 
 
 func _build_flowers(screen: Vector2) -> void:

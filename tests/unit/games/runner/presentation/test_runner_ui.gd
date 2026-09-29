@@ -12,15 +12,17 @@ func before_each() -> void:
 
 func test_character_button_emits_runner_chosen() -> void:
 	watch_signals(ui)
-	var button: Button = ui.get_node("%CharacterButtons").get_child(1)
+	var button: CharacterButton = ui.get_node("%CharacterButtons").get_child(0)
 
 	button.pressed.emit()
 
-	assert_signal_emitted_with_parameters(ui, "runner_chosen", [button.text])
+	assert_signal_emitted_with_parameters(ui, "runner_chosen", [button.frames])
 
 
-func test_has_three_characters() -> void:
-	assert_eq(ui.get_node("%CharacterButtons").get_child_count(), 3)
+func test_character_buttons_show_first_idle_frame() -> void:
+	for button: CharacterButton in ui.get_node("%CharacterButtons").get_children():
+		assert_not_null(button.frames)
+		assert_eq(button.icon, button.frames.get_frame_texture(RunnerGame.ANIM_IDLE, 0))
 
 
 func test_play_again_button_emits_signal() -> void:

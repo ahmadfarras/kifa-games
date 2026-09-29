@@ -1,6 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/games/runner/presentation/runner_ui.gd" id="1_ui"]
+[ext_resource type="Script" path="res://src/games/runner/presentation/character_button.gd" id="2_button"]
+[ext_resource type="SpriteFrames" path="res://assets/runner/characters/little_girl.tres" id="3_girl"]
 
 [sub_resource type="StyleBoxFlat" id="chip"]
 content_margin_left = 24.0
@@ -143,32 +145,17 @@ mouse_filter = 2
 theme_override_constants/separation = 40
 alignment = 1
 
-[node name="Bunny" type="Button" parent="StartScreen/Layout/CharacterButtons"]
+[node name="LittleGirl" type="Button" parent="StartScreen/Layout/CharacterButtons"]
+custom_minimum_size = Vector2(150, 160)
 layout_mode = 2
-theme_override_font_sizes/font_size = 80
 theme_override_styles/focus = SubResource("no_focus")
 theme_override_styles/normal = SubResource("character_button")
 theme_override_styles/hover = SubResource("character_button")
 theme_override_styles/pressed = SubResource("character_button")
-text = "🐰"
-
-[node name="Dino" type="Button" parent="StartScreen/Layout/CharacterButtons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 80
-theme_override_styles/focus = SubResource("no_focus")
-theme_override_styles/normal = SubResource("character_button")
-theme_override_styles/hover = SubResource("character_button")
-theme_override_styles/pressed = SubResource("character_button")
-text = "🦖"
-
-[node name="Cat" type="Button" parent="StartScreen/Layout/CharacterButtons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 80
-theme_override_styles/focus = SubResource("no_focus")
-theme_override_styles/normal = SubResource("character_button")
-theme_override_styles/hover = SubResource("character_button")
-theme_override_styles/pressed = SubResource("character_button")
-text = "🐱"
+icon_alignment = 1
+expand_icon = true
+script = ExtResource("2_button")
+frames = ExtResource("3_girl")
 
 [node name="GameOverScreen" type="ColorRect" parent="."]
 unique_name_in_owner = true

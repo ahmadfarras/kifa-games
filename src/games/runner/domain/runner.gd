@@ -7,6 +7,7 @@ const SIZE := 0.13
 const HITBOX_HALF_WIDTH := SIZE * 0.28
 const JUMP_VELOCITY := 1.7
 const GRAVITY := 4.3
+const AIRTIME := 2.0 * JUMP_VELOCITY / GRAVITY
 
 var height := 0.0
 var velocity := 0.0
