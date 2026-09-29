@@ -118,6 +118,12 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 - **Mode** — which operation the quiz asks: add, subtract, multiply, divide, or mix (random each question).
 - **Quiz** — one play session of `Quiz.GOAL` (5) right answers. A wrong choice turns grey and the kid tries again; a right one lights a star and the next question follows after a short pause.
 
+**Coloring** (`src/games/coloring`)
+- **Page** (`ColoringPage`) — one picture being colored: a colour per **region**, or BLANK (unpainted / erased).
+- **Brush** — the picked colour (palette index, or BLANK = eraser). Tapping a region paints it with the brush.
+- **Complete** — no region is BLANK; celebrates once per page (until cleared). ✨ **Magic** fills every region with random colours; 🧽 **clear** blanks the page.
+- **Picture** — line art in a 400×320 space (`PictureLibrary`): paintable regions + fixed decorations, ported from the original SVG.
+
 **App** (`src/app`)
 - **Hub** — the main menu where the kid picks a game.
 
@@ -125,8 +131,9 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 
 - Code, identifiers and commit messages in English.
 - **Navigation:** `src/app/main.gd` is the router and composition root. It shows the Hub, builds a game (with its dependencies) when picked and frees it on the game's `exit_requested` signal. Scenes are `load()`ed on demand, never `preload()`ed in main, so only the running game's art is in memory.
-- **Shared UI:** `StarProgress` (row of stars lit one by one) and `WinScreen` ("You did it!" overlay with confetti) live in `src/shared/presentation/` together with common button styles (`styles/*.tres`); Match and Math use them. Reuse them for new games instead of copying.
-- Games are event driven where possible (signals, `Timer`, `Tween`); Match and Math have no `_process` at all. Animation speed is exposed (e.g. `CardView.animation_speed`) so tests run animations in a few frames instead of waiting real time.
+- **Shared UI:** `StarProgress` (row of stars lit one by one) and `WinScreen` ("You did it!" overlay with confetti) live in `src/shared/presentation/` together with common button styles (`styles/*.tres`); Match, Math and Coloring use them (WinScreen texts are per game). Reuse them for new games instead of copying.
+- **Coloring pictures** are polygons built by `PictureLibrary` (rect / circle / ellipse with SVG-style rotation / `path()` for SVG `M L Q Z` strings). `ColoringCanvas` draws the whole picture in one `_draw()` and redraws only when a colour changes; taps use point-in-polygon from the top shape down. Add a picture = id + icon + builder in `PictureLibrary` (keep regions as closed shapes).
+- Games are event driven where possible (signals, `Timer`, `Tween`); Match, Math and Coloring have no `_process` at all. Animation speed is exposed (e.g. `CardView.animation_speed`) so tests run animations in a few frames instead of waiting real time.
 - `class_name` for every domain/application/infrastructure class; typed GDScript everywhere.
 - Input only via InputMap actions (e.g. `jump`: Space, Up, click/tap), never raw keycodes.
 - Renderer is `gl_compatibility` (the only one the Web export supports). Base viewport 720×720 + stretch `canvas_items`/`expand`, so UI sizes follow the shortest screen side in both portrait and landscape.

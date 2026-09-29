@@ -203,7 +203,7 @@ func test_play_again_deals_same_level_fresh() -> void:
 	_match_all()
 	game.get_node("%WinTimer").timeout.emit()
 
-	_win().play_again_pressed.emit()
+	_win().primary_pressed.emit()
 
 	assert_false(game.get_node("%WinScreen").visible)
 	assert_eq(_visible_cards().size(), MatchRound.LEVELS[1] * 2)
@@ -242,7 +242,7 @@ func test_win_home_button_returns_to_level_select() -> void:
 	_match_all()
 	game.get_node("%WinTimer").timeout.emit()
 
-	_win().home_pressed.emit()
+	_win().secondary_pressed.emit()
 
 	assert_true(game.get_node("%StartScreen").visible)
 	assert_false(game.get_node("%WinScreen").visible)

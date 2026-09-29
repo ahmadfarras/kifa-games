@@ -53,6 +53,22 @@ func test_math_exit_returns_to_hub() -> void:
 	assert_true(_current() is Hub)
 
 
+func test_choosing_coloring_opens_coloring_on_its_pick_screen() -> void:
+	(_current() as Hub).game_chosen.emit(Hub.COLORING)
+
+	var game := _current() as ColoringGame
+	assert_not_null(game)
+	assert_true(game.get_node("%PickScreen").visible)
+
+
+func test_coloring_exit_returns_to_hub() -> void:
+	(_current() as Hub).game_chosen.emit(Hub.COLORING)
+
+	(_current() as ColoringGame).exit_requested.emit()
+
+	assert_true(_current() is Hub)
+
+
 func test_leaving_a_game_returns_to_hub_and_frees_it() -> void:
 	(_current() as Hub).game_chosen.emit(Hub.MATCH)
 	var game := _current() as MatchGame

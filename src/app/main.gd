@@ -8,6 +8,7 @@ const HUB_SCENE := "res://src/app/hub.tscn"
 const RUNNER_GAME_SCENE := "res://src/games/runner/presentation/runner_game.tscn"
 const MATCH_GAME_SCENE := "res://src/games/match/presentation/match_game.tscn"
 const MATH_GAME_SCENE := "res://src/games/math/presentation/math_game.tscn"
+const COLORING_GAME_SCENE := "res://src/games/coloring/presentation/coloring_game.tscn"
 
 var _current: Node
 
@@ -30,6 +31,8 @@ func _on_game_chosen(game: StringName) -> void:
 			_switch_to(_build_match())
 		Hub.MATH:
 			_switch_to(_build_math())
+		Hub.COLORING:
+			_switch_to(_build_coloring())
 
 
 func _build_runner() -> RunnerGame:
@@ -51,6 +54,13 @@ func _build_match() -> MatchGame:
 func _build_math() -> MathGame:
 	var game: MathGame = load(MATH_GAME_SCENE).instantiate()
 	game.setup(MathSession.new(_new_rng()))
+	game.exit_requested.connect(show_hub)
+	return game
+
+
+func _build_coloring() -> ColoringGame:
+	var game: ColoringGame = load(COLORING_GAME_SCENE).instantiate()
+	game.setup(ColoringSession.new(_new_rng()))
 	game.exit_requested.connect(show_hub)
 	return game
 

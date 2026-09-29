@@ -166,7 +166,7 @@ func test_play_again_restarts_same_mode() -> void:
 	_solve_all()
 	_fire("%WinTimer")
 
-	(game.get_node("%WinScreen") as WinScreen).play_again_pressed.emit()
+	(game.get_node("%WinScreen") as WinScreen).primary_pressed.emit()
 
 	assert_eq(session.quiz.mode, Quiz.Mode.DIVIDE)
 	assert_eq(session.quiz.solved, 0)
@@ -179,7 +179,7 @@ func test_win_home_returns_to_pick_screen() -> void:
 	_solve_all()
 	_fire("%WinTimer")
 
-	(game.get_node("%WinScreen") as WinScreen).home_pressed.emit()
+	(game.get_node("%WinScreen") as WinScreen).secondary_pressed.emit()
 
 	assert_true(game.get_node("%PickScreen").visible)
 	assert_false(game.get_node("%WinScreen").visible)

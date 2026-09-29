@@ -1,22 +1,34 @@
 class_name WinScreen
 extends ColorRect
 
-## "You did it!" overlay with a trophy, the stars earned and confetti. The game decides what the buttons do.
+## Celebration overlay ("You did it!" by default) with an emoji, optional earned stars and confetti.
+## Texts are set per game; the game decides what the two buttons do.
 
-signal play_again_pressed
-signal home_pressed
+signal primary_pressed
+signal secondary_pressed
+
+@export var emoji := "🏆"
+@export var title := "You did it!"
+@export var primary_text := "🔄 Play again"
+@export var secondary_text := "🏠"
 
 @onready var _stars: Label = %Stars
 @onready var _confetti: CPUParticles2D = %Confetti
 
 
 func _ready() -> void:
-	%PlayAgainButton.pressed.connect(play_again_pressed.emit)
-	%HomeButton.pressed.connect(home_pressed.emit)
+	%Emoji.text = emoji
+	%Title.text = title
+	%PrimaryButton.text = primary_text
+	%SecondaryButton.text = secondary_text
+	%PrimaryButton.pressed.connect(primary_pressed.emit)
+	%SecondaryButton.pressed.connect(secondary_pressed.emit)
 
 
-func celebrate(stars: String) -> void:
+## `stars`: e.g. "⭐⭐⭐"; empty hides the stars row.
+func celebrate(stars: String = "") -> void:
 	_stars.text = stars
+	_stars.visible = not stars.is_empty()
 	var screen := get_viewport_rect().size
 	_confetti.position = Vector2(screen.x * 0.5, -20.0)
 	_confetti.emission_rect_extents = Vector2(screen.x * 0.5, 10.0)

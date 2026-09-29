@@ -1,0 +1,233 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/games/coloring/presentation/coloring_game.gd" id="1_game"]
+[ext_resource type="Script" path="res://src/games/coloring/presentation/coloring_canvas.gd" id="2_canvas"]
+[ext_resource type="PackedScene" path="res://src/shared/presentation/win_screen.tscn" id="3_win"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/white_card.tres" id="4_card"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/round_white.tres" id="5_round"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/no_focus.tres" id="6_no_focus"]
+
+[sub_resource type="Gradient" id="sky_colors"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(1, 0.839, 0.91, 1, 1, 0.953, 0.769, 1, 0.847, 0.973, 0.882, 1)
+
+[sub_resource type="GradientTexture2D" id="sky_texture"]
+gradient = SubResource("sky_colors")
+width = 64
+height = 64
+fill_from = Vector2(0.35, 0)
+fill_to = Vector2(0.65, 1)
+
+[sub_resource type="StyleBoxFlat" id="canvas_card"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 1
+shadow_offset = Vector2(0, 8)
+
+[node name="ColoringGame" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_game")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("sky_texture")
+expand_mode = 1
+
+[node name="PickScreen" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Center" type="CenterContainer" parent="PickScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Layout" type="VBoxContainer" parent="PickScreen/Center"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 36
+alignment = 1
+
+[node name="Title" type="Label" parent="PickScreen/Center/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.608, 0.365, 0.898, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 16
+theme_override_font_sizes/font_size = 76
+text = "Coloring Fun! 🎨"
+horizontal_alignment = 1
+
+[node name="PictureButtons" type="HBoxContainer" parent="PickScreen/Center/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="PictureButtonTemplate" type="Button" parent="PickScreen/Center/Layout/PictureButtons"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 76
+theme_override_styles/focus = ExtResource("6_no_focus")
+theme_override_styles/normal = ExtResource("4_card")
+theme_override_styles/hover = ExtResource("4_card")
+theme_override_styles/pressed = ExtResource("4_card")
+text = "🦋"
+
+[node name="BackButton" type="Button" parent="PickScreen"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 100.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 36
+theme_override_styles/focus = ExtResource("6_no_focus")
+theme_override_styles/normal = ExtResource("5_round")
+theme_override_styles/hover = ExtResource("5_round")
+theme_override_styles/pressed = ExtResource("5_round")
+text = "⬅️"
+
+[node name="ColorScreen" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 20
+
+[node name="Layout" type="VBoxContainer" parent="ColorScreen"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="TopBar" type="HBoxContainer" parent="ColorScreen/Layout"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 20
+
+[node name="PicturesButton" type="Button" parent="ColorScreen/Layout/TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+theme_override_styles/focus = ExtResource("6_no_focus")
+theme_override_styles/normal = ExtResource("5_round")
+theme_override_styles/hover = ExtResource("5_round")
+theme_override_styles/pressed = ExtResource("5_round")
+text = "⬅️"
+
+[node name="MagicButton" type="Button" parent="ColorScreen/Layout/TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+theme_override_styles/focus = ExtResource("6_no_focus")
+theme_override_styles/normal = ExtResource("5_round")
+theme_override_styles/hover = ExtResource("5_round")
+theme_override_styles/pressed = ExtResource("5_round")
+text = "✨"
+
+[node name="ClearButton" type="Button" parent="ColorScreen/Layout/TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+theme_override_styles/focus = ExtResource("6_no_focus")
+theme_override_styles/normal = ExtResource("5_round")
+theme_override_styles/hover = ExtResource("5_round")
+theme_override_styles/pressed = ExtResource("5_round")
+text = "🧽"
+
+[node name="FinishButton" type="Button" parent="ColorScreen/Layout/TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+theme_override_styles/focus = ExtResource("6_no_focus")
+theme_override_styles/normal = ExtResource("5_round")
+theme_override_styles/hover = ExtResource("5_round")
+theme_override_styles/pressed = ExtResource("5_round")
+text = "✅"
+
+[node name="CardHolder" type="AspectRatioContainer" parent="ColorScreen/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+ratio = 1.25
+
+[node name="Card" type="PanelContainer" parent="ColorScreen/Layout/CardHolder"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("canvas_card")
+
+[node name="Canvas" type="Control" parent="ColorScreen/Layout/CardHolder/Card"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("2_canvas")
+
+[node name="Palette" type="GridContainer" parent="ColorScreen/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 18
+columns = 10
+
+[node name="FinishScreen" parent="." instance=ExtResource("3_win")]
+unique_name_in_owner = true
+layout_mode = 1
+emoji = "🌈"
+title = "Beautiful!"
+primary_text = "🎨 Keep coloring"
+secondary_text = "🖼️ New picture"
+
+[node name="MagicTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.06
+
+[node name="CompleteTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.45
+one_shot = true
