@@ -33,14 +33,17 @@ const LAYERS := {
 const BODY_HEIGHT := 193
 ## Keeps sprite sheets within the texture size every target GPU supports.
 const MAX_SHEET_WIDTH := 2048
-## Character -> raw frame prefix -> [animation, fps, loop]. Raw "Walk" frames are not used by the game.
+## Character -> animation -> [raw frame prefixes in play order, fps, loop]. Raw "Walk" frames are not used.
 ## Pick fps so animations take the same time for every character (e.g. run cycle ~0.7 s).
 const CHARACTERS := {
 	"little_girl": {
-		"Idle": ["idle", 20.0, true], "Run": ["run", 30.0, true], "Jump": ["jump", 30.0, false], "Dead": ["dead", 30.0, false],
+		"idle": [["Idle"], 20.0, true], "run": [["Run"], 30.0, true], "jump": [["Jump"], 30.0, false], "dead": [["Dead"], 30.0, false],
 	},
 	"little_boy": {
-		"Idle": ["idle", 20.0, true], "Run": ["run", 22.0, true], "Jump": ["jump", 30.0, false], "Dead": ["dead", 15.0, false],
+		"idle": [["Idle"], 20.0, true], "run": [["Run"], 22.0, true], "jump": [["Jump"], 30.0, false], "dead": [["Dead"], 15.0, false],
+	},
+	"cat": {
+		"idle": [["Idle"], 12.5, true], "run": [["Run"], 11.5, true], "jump": [["Jump", "Fall"], 30.0, false], "dead": [["Dead"], 10.0, false],
 	},
 }
 # "tiny grass.png" is left out: its loose blades look like they float above the ground.
@@ -133,10 +136,11 @@ func _build_character(character: String, animations: Dictionary) -> void:
 	var subs := PackedStringArray()
 	var entries := PackedStringArray()
 	var bodies := PackedStringArray()
-	for prefix: String in animations:
-		var spec: Array = animations[prefix]
-		var animation: String = spec[0]
-		var frames := _load_frames(raw_dir, prefix, scale)
+	for animation: String in animations:
+		var spec: Array = animations[animation]
+		var frames: Array[Image] = []
+		for prefix: String in spec[0]:
+			frames.append_array(_load_frames(raw_dir, prefix, scale))
 		var used: Array[Rect2i] = []
 		var box := frames[0].get_used_rect()
 		for frame in frames:

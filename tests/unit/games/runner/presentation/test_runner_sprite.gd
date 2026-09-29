@@ -2,6 +2,7 @@ extends GutTest
 
 const GIRL := preload("res://assets/runner/characters/little_girl.tres")
 const BOY := preload("res://assets/runner/characters/little_boy.tres")
+const CAT := preload("res://assets/runner/characters/cat.tres")
 const WORLD_WIDTH := 1.8
 
 var sprite: RunnerSprite
@@ -28,7 +29,7 @@ func _expected_offset(frames: SpriteFrames, animation: StringName) -> Vector2:
 
 func test_body_metadata_matches_first_frame_art() -> void:
 	# Frames are cropped to their visible pixels; the margin places them inside the animation's frame box.
-	for frames: SpriteFrames in [GIRL, BOY]:
+	for frames: SpriteFrames in [GIRL, BOY, CAT]:
 		for animation in [RunnerSprite.ANIM_IDLE, RunnerSprite.ANIM_RUN, RunnerSprite.ANIM_JUMP, RunnerSprite.ANIM_DEAD]:
 			var first := frames.get_frame_texture(animation, 0) as AtlasTexture
 			var expected := Rect2i(Vector2i(first.margin.position), Vector2i(first.region.size))
@@ -36,7 +37,7 @@ func test_body_metadata_matches_first_frame_art() -> void:
 
 
 func test_frames_of_an_animation_share_one_box() -> void:
-	for frames: SpriteFrames in [GIRL, BOY]:
+	for frames: SpriteFrames in [GIRL, BOY, CAT]:
 		for animation in [RunnerSprite.ANIM_IDLE, RunnerSprite.ANIM_RUN, RunnerSprite.ANIM_JUMP, RunnerSprite.ANIM_DEAD]:
 			var size := frames.get_frame_texture(animation, 0).get_size()
 			for i in frames.get_frame_count(animation):
@@ -55,7 +56,7 @@ func test_set_character_changes_frames_and_anchor() -> void:
 
 
 func test_fit_height_scales_visible_body_to_height() -> void:
-	for frames: SpriteFrames in [GIRL, BOY]:
+	for frames: SpriteFrames in [GIRL, BOY, CAT]:
 		sprite.set_character(frames)
 
 		sprite.fit_height(100.0)
@@ -107,7 +108,7 @@ func test_run_speed_follows_world_speed() -> void:
 
 
 func test_jump_animation_lasts_one_jump() -> void:
-	for frames: SpriteFrames in [GIRL, BOY]:
+	for frames: SpriteFrames in [GIRL, BOY, CAT]:
 		sprite.set_character(frames)
 		run.runner.is_on_ground = false
 
@@ -136,6 +137,6 @@ func test_same_animation_is_not_restarted() -> void:
 
 
 func test_characters_have_all_animations() -> void:
-	for frames: SpriteFrames in [GIRL, BOY]:
+	for frames: SpriteFrames in [GIRL, BOY, CAT]:
 		for animation in [RunnerSprite.ANIM_IDLE, RunnerSprite.ANIM_RUN, RunnerSprite.ANIM_JUMP, RunnerSprite.ANIM_DEAD]:
 			assert_gt(frames.get_frame_count(animation), 0, "%s missing %s" % [frames.resource_path, animation])
