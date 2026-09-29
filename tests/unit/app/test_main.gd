@@ -37,6 +37,22 @@ func test_choosing_match_opens_match_on_its_start_screen() -> void:
 	assert_true(game.get_node("%StartScreen").visible)
 
 
+func test_choosing_math_opens_math_on_its_pick_screen() -> void:
+	(_current() as Hub).game_chosen.emit(Hub.MATH)
+
+	var game := _current() as MathGame
+	assert_not_null(game)
+	assert_true(game.get_node("%PickScreen").visible)
+
+
+func test_math_exit_returns_to_hub() -> void:
+	(_current() as Hub).game_chosen.emit(Hub.MATH)
+
+	(_current() as MathGame).exit_requested.emit()
+
+	assert_true(_current() is Hub)
+
+
 func test_leaving_a_game_returns_to_hub_and_frees_it() -> void:
 	(_current() as Hub).game_chosen.emit(Hub.MATCH)
 	var game := _current() as MatchGame

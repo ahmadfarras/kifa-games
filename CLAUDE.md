@@ -58,6 +58,7 @@ src/
   shared/                    # shared kernel — only code genuinely used by 2+ games
     domain/
     infrastructure/
+    presentation/            # reusable UI pieces (StarProgress, WinScreen) and styles/*.tres
   games/
     <game>/                  # runner, math, match, coloring — one bounded context each
       domain/                # entities, value objects, domain services, ports. Pure GDScript.
@@ -112,6 +113,11 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 - **Match / Mismatch** — two flipped cards with the same face stay open and light a star; different faces wobble and flip back after a short pause (taps are ignored meanwhile).
 - **Level** — number of pairs: 3 (⭐), 6 (⭐⭐), 8 (⭐⭐⭐).
 
+**Math** (`src/games/math`)
+- **Question** — one kid-sized sum (`a` op `b`) with an answer and three **choices** (the answer + two close wrong ones). Numbers stay small; answers are always whole and never negative.
+- **Mode** — which operation the quiz asks: add, subtract, multiply, divide, or mix (random each question).
+- **Quiz** — one play session of `Quiz.GOAL` (5) right answers. A wrong choice turns grey and the kid tries again; a right one lights a star and the next question follows after a short pause.
+
 **App** (`src/app`)
 - **Hub** — the main menu where the kid picks a game.
 
@@ -119,7 +125,8 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 
 - Code, identifiers and commit messages in English.
 - **Navigation:** `src/app/main.gd` is the router and composition root. It shows the Hub, builds a game (with its dependencies) when picked and frees it on the game's `exit_requested` signal. Scenes are `load()`ed on demand, never `preload()`ed in main, so only the running game's art is in memory.
-- Games are event driven where possible (signals, `Timer`, `Tween`); Match has no `_process` at all. Animation speed is exposed (e.g. `CardView.animation_speed`) so tests run animations in a few frames instead of waiting real time.
+- **Shared UI:** `StarProgress` (row of stars lit one by one) and `WinScreen` ("You did it!" overlay with confetti) live in `src/shared/presentation/` together with common button styles (`styles/*.tres`); Match and Math use them. Reuse them for new games instead of copying.
+- Games are event driven where possible (signals, `Timer`, `Tween`); Match and Math have no `_process` at all. Animation speed is exposed (e.g. `CardView.animation_speed`) so tests run animations in a few frames instead of waiting real time.
 - `class_name` for every domain/application/infrastructure class; typed GDScript everywhere.
 - Input only via InputMap actions (e.g. `jump`: Space, Up, click/tap), never raw keycodes.
 - Renderer is `gl_compatibility` (the only one the Web export supports). Base viewport 720×720 + stretch `canvas_items`/`expand`, so UI sizes follow the shortest screen side in both portrait and landscape.

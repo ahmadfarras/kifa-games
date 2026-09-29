@@ -1,0 +1,106 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/shared/presentation/win_screen.gd" id="1_win"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/green_button.tres" id="2_green"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/pink_button.tres" id="3_pink"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/no_focus.tres" id="4_no_focus"]
+
+[sub_resource type="Gradient" id="confetti_colors"]
+offsets = PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1)
+colors = PackedColorArray(1, 0.42, 0.616, 1, 1, 0.624, 0.11, 1, 1, 0.82, 0.4, 1, 0.263, 0.769, 0.396, 1, 0.29, 0.62, 0.961, 1, 0.608, 0.365, 0.898, 1)
+
+[node name="WinScreen" type="ColorRect"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0.75)
+script = ExtResource("1_win")
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Layout" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Trophy" type="Label" parent="Center/Layout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 110
+text = "🏆"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="Center/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.624, 0.11, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 84
+text = "You did it!"
+horizontal_alignment = 1
+
+[node name="Stars" type="Label" parent="Center/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 60
+text = "⭐⭐⭐"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Layout"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="PlayAgainButton" type="Button" parent="Center/Layout/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 36
+theme_override_styles/focus = ExtResource("4_no_focus")
+theme_override_styles/normal = ExtResource("2_green")
+theme_override_styles/hover = ExtResource("2_green")
+theme_override_styles/pressed = ExtResource("2_green")
+text = "🔄 Play again"
+
+[node name="HomeButton" type="Button" parent="Center/Layout/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+theme_override_styles/focus = ExtResource("4_no_focus")
+theme_override_styles/normal = ExtResource("3_pink")
+theme_override_styles/hover = ExtResource("3_pink")
+theme_override_styles/pressed = ExtResource("3_pink")
+text = "🏠"
+
+[node name="Confetti" type="CPUParticles2D" parent="."]
+unique_name_in_owner = true
+emitting = false
+amount = 80
+lifetime = 4.0
+one_shot = true
+explosiveness = 0.3
+emission_shape = 3
+emission_rect_extents = Vector2(640, 10)
+direction = Vector2(0, 1)
+spread = 25.0
+gravity = Vector2(0, 300)
+initial_velocity_min = 80.0
+initial_velocity_max = 220.0
+angular_velocity_min = -360.0
+angular_velocity_max = 360.0
+scale_amount_min = 10.0
+scale_amount_max = 18.0
+color_initial_ramp = SubResource("confetti_colors")

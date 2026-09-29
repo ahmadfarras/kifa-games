@@ -14,24 +14,19 @@ const MAX_CARD_SIZE := 220.0
 ## Share of the screen the board may use.
 const BOARD_AREA := Vector2(0.92, 0.72)
 const GAP_RATIO := 0.02
-const STAR_OFF := Color(0.6, 0.6, 0.6, 0.35)
-const STAR_POP_SCALE := Vector2(1.5, 1.5)
 
 @export var card_scene: PackedScene
 
 var _session: MatchSession
 var _level := 0
 var _cards: Array[CardView] = []
-var _stars: Array[Label] = []
 
 @onready var _start_screen: Control = %StartScreen
 @onready var _level_buttons: Container = %LevelButtons
 @onready var _game_screen: Control = %GameScreen
 @onready var _board: GridContainer = %Board
-@onready var _progress: Container = %Progress
-@onready var _win_screen: Control = %WinScreen
-@onready var _win_stars: Label = %WinStars
-@onready var _confetti: CPUParticles2D = %Confetti
+@onready var _progress: StarProgress = %Progress
+@onready var _win_screen: WinScreen = %WinScreen
 @onready var _wobble_timer: Timer = %WobbleTimer
 @onready var _hide_timer: Timer = %HideTimer
 @onready var _win_timer: Timer = %WinTimer
@@ -63,8 +58,8 @@ func _ready() -> void:
 		_add_level_button(level)
 	%BackButton.pressed.connect(exit_requested.emit)
 	%HomeButton.pressed.connect(_show_start)
-	%WinHomeButton.pressed.connect(_show_start)
-	%PlayAgainButton.pressed.connect(func() -> void: _start(_level))
+	_win_screen.home_pressed.connect(_show_start)
+	_win_screen.play_again_pressed.connect(func() -> void: _start(_level))
 	_session.round_won.connect(_win_timer.start)
 	_wobble_timer.timeout.connect(_wobble_mismatch)
 	_hide_timer.timeout.connect(_hide_mismatch)
@@ -86,7 +81,7 @@ func _start(level: int) -> void:
 	_stop_timers()
 	var match_round := _session.start(MatchRound.LEVELS[level], FACES.size())
 	_deal(match_round)
-	_reset_progress(match_round.pairs)
+	_progress.reset(match_round.pairs)
 	_start_screen.hide()
 	_win_screen.hide()
 	_game_screen.show()
@@ -105,24 +100,13 @@ func _deal(match_round: MatchRound) -> void:
 			_cards[i].setup(FACES[match_round.cards[i].face], _cards[i].custom_minimum_size.x)
 
 
-func _reset_progress(pairs: int) -> void:
-	while _stars.size() < pairs:
-		var star: Label = %StarTemplate.duplicate()
-		_progress.add_child(star)
-		_stars.append(star)
-	for i in _stars.size():
-		_stars[i].visible = i < pairs
-		_stars[i].modulate = STAR_OFF
-		_stars[i].scale = Vector2.ONE
-
-
 func _on_card_pressed(index: int) -> void:
 	var result := _session.flip(index)
 	if result == MatchRound.Flip.IGNORED:
 		return
 	_sync_cards()
 	if result == MatchRound.Flip.MATCH:
-		_light_star(_session.match_round.matched_pairs - 1)
+		_progress.light_next()
 	elif result == MatchRound.Flip.MISMATCH:
 		_wobble_timer.start()
 		_hide_timer.start()
@@ -154,19 +138,8 @@ func _hide_mismatch() -> void:
 	_sync_cards()
 
 
-func _light_star(index: int) -> void:
-	var star := _stars[index]
-	star.modulate = Color.WHITE
-	star.pivot_offset = star.size * 0.5
-	var tween := star.create_tween()
-	tween.tween_property(star, "scale", STAR_POP_SCALE, 0.2)
-	tween.tween_property(star, "scale", Vector2.ONE, 0.25)
-
-
 func _show_win() -> void:
-	_win_stars.text = stars_text(_level)
-	_win_screen.show()
-	_confetti.restart()
+	_win_screen.celebrate(stars_text(_level))
 
 
 func _show_start() -> void:
@@ -184,8 +157,6 @@ func _stop_timers() -> void:
 func _layout() -> void:
 	var screen := get_viewport_rect().size
 	var gap := minf(screen.x, screen.y) * GAP_RATIO
-	_confetti.position = Vector2(screen.x * 0.5, -20.0)
-	_confetti.emission_rect_extents = Vector2(screen.x * 0.5, 10.0)
 	if _session.match_round == null:
 		return
 	var layout := board_layout(_session.match_round.cards.size(), screen * BOARD_AREA, gap)

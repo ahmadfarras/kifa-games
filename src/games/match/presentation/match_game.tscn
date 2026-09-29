@@ -2,6 +2,11 @@
 
 [ext_resource type="Script" path="res://src/games/match/presentation/match_game.gd" id="1_game"]
 [ext_resource type="PackedScene" path="res://src/games/match/presentation/card_view.tscn" id="2_card"]
+[ext_resource type="Script" path="res://src/shared/presentation/star_progress.gd" id="3_stars"]
+[ext_resource type="PackedScene" path="res://src/shared/presentation/win_screen.tscn" id="4_win"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/white_card.tres" id="5_card"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/round_white.tres" id="6_round"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/no_focus.tres" id="7_no_focus"]
 
 [sub_resource type="Gradient" id="sky_colors"]
 offsets = PackedFloat32Array(0, 0.6, 1)
@@ -13,64 +18,6 @@ width = 64
 height = 64
 fill_from = Vector2(0.35, 0)
 fill_to = Vector2(0.65, 1)
-
-[sub_resource type="StyleBoxFlat" id="white_card"]
-content_margin_left = 36.0
-content_margin_top = 20.0
-content_margin_right = 36.0
-content_margin_bottom = 20.0
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_right = 28
-corner_radius_bottom_left = 28
-shadow_color = Color(0, 0, 0, 0.12)
-shadow_size = 1
-shadow_offset = Vector2(0, 8)
-
-[sub_resource type="StyleBoxFlat" id="round_white"]
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 40
-corner_radius_top_right = 40
-corner_radius_bottom_right = 40
-corner_radius_bottom_left = 40
-shadow_color = Color(0, 0, 0, 0.12)
-shadow_size = 1
-shadow_offset = Vector2(0, 5)
-
-[sub_resource type="StyleBoxFlat" id="green_button"]
-content_margin_left = 32.0
-content_margin_top = 16.0
-content_margin_right = 32.0
-content_margin_bottom = 16.0
-bg_color = Color(0.263, 0.769, 0.396, 1)
-corner_radius_top_left = 40
-corner_radius_top_right = 40
-corner_radius_bottom_right = 40
-corner_radius_bottom_left = 40
-shadow_color = Color(0.18, 0.58, 0.282, 1)
-shadow_size = 1
-shadow_offset = Vector2(0, 7)
-
-[sub_resource type="StyleBoxFlat" id="pink_button"]
-content_margin_left = 32.0
-content_margin_top = 16.0
-content_margin_right = 32.0
-content_margin_bottom = 16.0
-bg_color = Color(1, 0.42, 0.616, 1)
-corner_radius_top_left = 40
-corner_radius_top_right = 40
-corner_radius_bottom_right = 40
-corner_radius_bottom_left = 40
-shadow_color = Color(0.82, 0.29, 0.482, 1)
-shadow_size = 1
-shadow_offset = Vector2(0, 7)
-
-[sub_resource type="StyleBoxEmpty" id="no_focus"]
-
-[sub_resource type="Gradient" id="confetti_colors"]
-offsets = PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1)
-colors = PackedColorArray(1, 0.42, 0.616, 1, 1, 0.624, 0.11, 1, 1, 0.82, 0.4, 1, 0.263, 0.769, 0.396, 1, 0.29, 0.62, 0.961, 1, 0.608, 0.365, 0.898, 1)
 
 [node name="MatchGame" type="Control"]
 layout_mode = 3
@@ -146,10 +93,10 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 52
-theme_override_styles/focus = SubResource("no_focus")
-theme_override_styles/normal = SubResource("white_card")
-theme_override_styles/hover = SubResource("white_card")
-theme_override_styles/pressed = SubResource("white_card")
+theme_override_styles/focus = ExtResource("7_no_focus")
+theme_override_styles/normal = ExtResource("5_card")
+theme_override_styles/hover = ExtResource("5_card")
+theme_override_styles/pressed = ExtResource("5_card")
 text = "🐣
 ⭐"
 
@@ -162,10 +109,10 @@ offset_top = 24.0
 offset_right = 100.0
 offset_bottom = 100.0
 theme_override_font_sizes/font_size = 36
-theme_override_styles/focus = SubResource("no_focus")
-theme_override_styles/normal = SubResource("round_white")
-theme_override_styles/hover = SubResource("round_white")
-theme_override_styles/pressed = SubResource("round_white")
+theme_override_styles/focus = ExtResource("7_no_focus")
+theme_override_styles/normal = ExtResource("6_round")
+theme_override_styles/hover = ExtResource("6_round")
+theme_override_styles/pressed = ExtResource("6_round")
 text = "⬅️"
 
 [node name="GameScreen" type="CenterContainer" parent="."]
@@ -196,10 +143,10 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(76, 76)
 layout_mode = 2
 theme_override_font_sizes/font_size = 36
-theme_override_styles/focus = SubResource("no_focus")
-theme_override_styles/normal = SubResource("round_white")
-theme_override_styles/hover = SubResource("round_white")
-theme_override_styles/pressed = SubResource("round_white")
+theme_override_styles/focus = ExtResource("7_no_focus")
+theme_override_styles/normal = ExtResource("6_round")
+theme_override_styles/hover = ExtResource("6_round")
+theme_override_styles/pressed = ExtResource("6_round")
 text = "🏠"
 
 [node name="Progress" type="HBoxContainer" parent="GameScreen/Layout/TopBar"]
@@ -208,13 +155,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 8
 alignment = 1
-
-[node name="StarTemplate" type="Label" parent="GameScreen/Layout/TopBar/Progress"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "⭐"
+script = ExtResource("3_stars")
 
 [node name="Board" type="GridContainer" parent="GameScreen/Layout"]
 unique_name_in_owner = true
@@ -223,102 +164,9 @@ size_flags_horizontal = 4
 mouse_filter = 2
 columns = 3
 
-[node name="WinScreen" type="ColorRect" parent="."]
+[node name="WinScreen" parent="." instance=ExtResource("4_win")]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(1, 1, 1, 0.75)
-
-[node name="Center" type="CenterContainer" parent="WinScreen"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="Layout" type="VBoxContainer" parent="WinScreen/Center"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 20
-alignment = 1
-
-[node name="Trophy" type="Label" parent="WinScreen/Center/Layout"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 110
-text = "🏆"
-horizontal_alignment = 1
-
-[node name="Title" type="Label" parent="WinScreen/Center/Layout"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.624, 0.11, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 12
-theme_override_font_sizes/font_size = 84
-text = "You did it!"
-horizontal_alignment = 1
-
-[node name="WinStars" type="Label" parent="WinScreen/Center/Layout"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 60
-text = "⭐⭐⭐"
-horizontal_alignment = 1
-
-[node name="Buttons" type="HBoxContainer" parent="WinScreen/Center/Layout"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 24
-alignment = 1
-
-[node name="PlayAgainButton" type="Button" parent="WinScreen/Center/Layout/Buttons"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 36
-theme_override_styles/focus = SubResource("no_focus")
-theme_override_styles/normal = SubResource("green_button")
-theme_override_styles/hover = SubResource("green_button")
-theme_override_styles/pressed = SubResource("green_button")
-text = "🔄 Play again"
-
-[node name="WinHomeButton" type="Button" parent="WinScreen/Center/Layout/Buttons"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 36
-theme_override_styles/focus = SubResource("no_focus")
-theme_override_styles/normal = SubResource("pink_button")
-theme_override_styles/hover = SubResource("pink_button")
-theme_override_styles/pressed = SubResource("pink_button")
-text = "🏠"
-
-[node name="Confetti" type="CPUParticles2D" parent="."]
-unique_name_in_owner = true
-emitting = false
-amount = 80
-lifetime = 4.0
-one_shot = true
-explosiveness = 0.3
-emission_shape = 3
-emission_rect_extents = Vector2(640, 10)
-direction = Vector2(0, 1)
-spread = 25.0
-gravity = Vector2(0, 300)
-initial_velocity_min = 80.0
-initial_velocity_max = 220.0
-angular_velocity_min = -360.0
-angular_velocity_max = 360.0
-scale_amount_min = 10.0
-scale_amount_max = 18.0
-color_initial_ramp = SubResource("confetti_colors")
 
 [node name="WobbleTimer" type="Timer" parent="."]
 unique_name_in_owner = true

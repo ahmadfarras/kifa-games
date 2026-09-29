@@ -14,10 +14,10 @@ fill_from = Vector2(0.35, 0)
 fill_to = Vector2(0.65, 1)
 
 [sub_resource type="StyleBoxFlat" id="game_card"]
-content_margin_left = 40.0
-content_margin_top = 28.0
-content_margin_right = 40.0
-content_margin_bottom = 28.0
+content_margin_left = 20.0
+content_margin_top = 24.0
+content_margin_right = 20.0
+content_margin_bottom = 24.0
 bg_color = Color(1, 1, 1, 1)
 corner_radius_top_left = 32
 corner_radius_top_right = 32
@@ -84,12 +84,12 @@ horizontal_alignment = 1
 [node name="Games" type="HBoxContainer" parent="Center/Layout"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 40
+theme_override_constants/separation = 24
 alignment = 1
 
 [node name="MatchButton" type="Button" parent="Center/Layout/Games"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 230)
+custom_minimum_size = Vector2(210, 210)
 layout_mode = 2
 theme_override_styles/focus = SubResource("no_focus")
 theme_override_styles/normal = SubResource("game_card")
@@ -108,20 +108,52 @@ alignment = 1
 
 [node name="Icon" type="Label" parent="Center/Layout/Games/MatchButton/Content"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 72
 text = "🐱❓"
 horizontal_alignment = 1
 
 [node name="Name" type="Label" parent="Center/Layout/Games/MatchButton/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.29, 0.62, 0.961, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 28
 text = "Animal Match"
+horizontal_alignment = 1
+
+[node name="MathButton" type="Button" parent="Center/Layout/Games"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 210)
+layout_mode = 2
+theme_override_styles/focus = SubResource("no_focus")
+theme_override_styles/normal = SubResource("game_card")
+theme_override_styles/hover = SubResource("game_card")
+theme_override_styles/pressed = SubResource("game_card")
+
+[node name="Content" type="VBoxContainer" parent="Center/Layout/Games/MathButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="Icon" type="Label" parent="Center/Layout/Games/MathButton/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 72
+text = "🔢➕"
+horizontal_alignment = 1
+
+[node name="Name" type="Label" parent="Center/Layout/Games/MathButton/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.263, 0.769, 0.396, 1)
+theme_override_font_sizes/font_size = 28
+text = "Math Fun"
 horizontal_alignment = 1
 
 [node name="RunnerButton" type="Button" parent="Center/Layout/Games"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 230)
+custom_minimum_size = Vector2(210, 210)
 layout_mode = 2
 theme_override_styles/focus = SubResource("no_focus")
 theme_override_styles/normal = SubResource("game_card")
@@ -140,13 +172,13 @@ alignment = 1
 
 [node name="Icon" type="Label" parent="Center/Layout/Games/RunnerButton/Content"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 72
 text = "🏃🍄"
 horizontal_alignment = 1
 
 [node name="Name" type="Label" parent="Center/Layout/Games/RunnerButton/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.624, 0.11, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 28
 text = "Run Run!"
 horizontal_alignment = 1

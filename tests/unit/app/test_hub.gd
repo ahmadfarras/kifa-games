@@ -17,6 +17,12 @@ func test_match_button_chooses_match() -> void:
 	assert_signal_emitted_with_parameters(hub, "game_chosen", [Hub.MATCH])
 
 
+func test_math_button_chooses_math() -> void:
+	hub.get_node("%MathButton").pressed.emit()
+
+	assert_signal_emitted_with_parameters(hub, "game_chosen", [Hub.MATH])
+
+
 func test_runner_button_chooses_runner() -> void:
 	hub.get_node("%RunnerButton").pressed.emit()
 

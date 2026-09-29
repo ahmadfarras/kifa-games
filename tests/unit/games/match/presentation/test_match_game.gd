@@ -32,11 +32,11 @@ func _visible_cards() -> Array[CardView]:
 
 
 func _lit_stars() -> int:
-	var lit := 0
-	for star in game.get_node("%Progress").get_children():
-		if star.visible and star.modulate == Color.WHITE:
-			lit += 1
-	return lit
+	return (game.get_node("%Progress") as StarProgress).lit_count()
+
+
+func _win() -> WinScreen:
+	return game.get_node("%WinScreen")
 
 
 func _pair_of(face: int) -> Array[int]:
@@ -193,10 +193,9 @@ func test_last_pair_shows_win_screen_after_delay() -> void:
 
 	game.get_node("%WinTimer").timeout.emit()
 
-	assert_true(game.get_node("%WinScreen").visible)
-	assert_eq(game.get_node("%WinStars").text, MatchGame.stars_text(0))
+	assert_true(_win().visible)
+	assert_eq(_win().get_node("%Stars").text, MatchGame.stars_text(0))
 	assert_eq(_lit_stars(), MatchRound.LEVELS[0])
-	assert_true(game.get_node("%Confetti").emitting)
 
 
 func test_play_again_deals_same_level_fresh() -> void:
@@ -204,7 +203,7 @@ func test_play_again_deals_same_level_fresh() -> void:
 	_match_all()
 	game.get_node("%WinTimer").timeout.emit()
 
-	game.get_node("%PlayAgainButton").pressed.emit()
+	_win().play_again_pressed.emit()
 
 	assert_false(game.get_node("%WinScreen").visible)
 	assert_eq(_visible_cards().size(), MatchRound.LEVELS[1] * 2)
@@ -243,7 +242,7 @@ func test_win_home_button_returns_to_level_select() -> void:
 	_match_all()
 	game.get_node("%WinTimer").timeout.emit()
 
-	game.get_node("%WinHomeButton").pressed.emit()
+	_win().home_pressed.emit()
 
 	assert_true(game.get_node("%StartScreen").visible)
 	assert_false(game.get_node("%WinScreen").visible)
