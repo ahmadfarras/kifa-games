@@ -43,6 +43,9 @@ func _ready() -> void:
 		_obstacle_footprints.append(texture.get_size() * OBSTACLE_UNITS_PER_PIXEL)
 	_background.setup(_rng)
 	_session.run_ended.connect(_on_run_ended)
+	_session.progress_changed.connect(_refresh_progress)
+	_ui.shop_requested.connect(_on_shop_requested)
+	_ui.shop.buy_requested.connect(_on_buy_requested)
 	_ui.character_selected.connect(_on_character_selected)
 	_ui.runner_chosen.connect(_on_runner_chosen)
 	_ui.play_again_pressed.connect(_start_run)
@@ -101,6 +104,19 @@ func _on_game_over_timer_timeout() -> void:
 
 func _refresh_progress() -> void:
 	_ui.show_progress(_session.coins(), _session.progress.owned)
+	_ui.shop.refresh(_session.coins(), _session.progress.owned)
+
+
+func _on_shop_requested(id: StringName) -> void:
+	_ui.show_shop(_session.coins(), _session.progress.owned, id)
+
+
+func _on_buy_requested(id: StringName) -> void:
+	if _session.buy(id) != Progress.Purchase.BOUGHT:
+		return
+	_ui.shop.celebrate(id)
+	_ui.select_character(id)
+	_on_character_selected(_ui.selected_character())
 
 
 func _on_obstacle_spawned(obstacle: Obstacle) -> void:

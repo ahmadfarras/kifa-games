@@ -4,6 +4,7 @@ const RunnerGameScene := preload("res://src/games/runner/presentation/runner_gam
 const DELTA := 0.02
 const GIRL := preload("res://assets/runner/characters/little_girl.tres")
 const BOY := preload("res://assets/runner/characters/little_boy.tres")
+const CAT := preload("res://assets/runner/characters/cat.tres")
 const FakeProgressRepository := preload("res://tests/unit/games/runner/fake_progress_repository.gd")
 
 
@@ -337,3 +338,68 @@ func test_crash_shows_coins_earned_and_new_balance() -> void:
 
 	assert_eq(ui.get_node("%FinalCoinsLabel").text, "+12 🪙")
 	assert_eq(ui.get_node("%CoinsLabel").text, "🪙 12")
+
+
+func test_tapping_locked_character_opens_shop_on_it() -> void:
+	ui.get_node("%CharacterButtons/Cat")._pressed()
+
+	assert_true(ui.shop.visible)
+	assert_false(ui.get_node("%StartScreen").visible)
+	assert_true(ui.shop.card(&"cat").art().is_processing())
+
+
+func test_shop_button_opens_shop() -> void:
+	ui.get_node("%ShopButton").pressed.emit()
+
+	assert_true(ui.shop.visible)
+
+
+func test_closing_shop_returns_to_start_screen() -> void:
+	ui.get_node("%ShopButton").pressed.emit()
+
+	ui.shop.close()
+
+	assert_false(ui.shop.visible)
+	assert_true(ui.get_node("%StartScreen").visible)
+
+
+func test_buying_unlocks_selects_and_previews_character() -> void:
+	session.progress.coins = 600
+	ui.get_node("%ShopButton").pressed.emit()
+
+	ui.shop.buy_requested.emit(&"cat")
+
+	assert_true(session.owns(&"cat"))
+	assert_eq(ui.get_node("%CoinsLabel").text, "🪙 100")
+	assert_eq(ui.shop.get_node("%ShopCoinsLabel").text, "🪙 100")
+	assert_false(ui.get_node("%CharacterButtons/Cat").is_locked)
+	assert_eq(ui.selected_character(), CAT)
+	assert_eq(game.get_node("Runner").sprite_frames, CAT)
+
+
+func test_failed_purchase_changes_nothing() -> void:
+	session.progress.coins = 10
+
+	ui.shop.buy_requested.emit(&"cat")
+
+	assert_false(session.owns(&"cat"))
+	assert_eq(ui.selected_character(), GIRL)
+
+
+func test_buy_flow_through_confirm_panel() -> void:
+	session.progress.coins = 500
+	ui.get_node("%CharacterButtons/Cat")._pressed()
+
+	ui.shop.card(&"cat").get_node("Layout/BuyButton").pressed.emit()
+	ui.shop.get_node("%YesButton").pressed.emit()
+
+	assert_true(session.owns(&"cat"))
+	assert_eq(session.coins(), 0)
+
+
+func test_run_coins_reach_the_shop() -> void:
+	_choose_runner()
+	session.run.elapsed = 12.0 / Run.SCORE_PER_SECOND
+	_crash()
+
+	assert_eq(ui.shop.get_node("%ShopCoinsLabel").text, "🪙 12")

@@ -1,7 +1,7 @@
 class_name RunnerUi
 extends Control
 
-## Start screen (select an owned character, then Start; coins and shop button), score bar and game-over screen.
+## Start screen (select an owned character, then Start; coins and shop button), shop, score bar and game-over screen.
 ## Emits what the kid pressed; holds no game rules.
 
 signal character_selected(frames: SpriteFrames)
@@ -16,6 +16,7 @@ const SCORE_POP_EVERY := 10
 const SCORE_POP_SCALE := Vector2(1.25, 1.25)
 const SCORE_POP_SECONDS := 0.15
 
+@onready var shop: ShopScreen = %ShopScreen
 @onready var _start_screen: Control = %StartScreen
 @onready var _character_buttons: Container = %CharacterButtons
 @onready var _score_bar: Control = %ScoreBar
@@ -32,8 +33,12 @@ const SCORE_POP_SECONDS := 0.15
 func _ready() -> void:
 	var group := (_character_buttons.get_child(0) as CharacterButton).button_group
 	group.pressed.connect(func(button: CharacterButton) -> void: character_selected.emit(button.frames))
+	var frames_by_id := {}
 	for button: CharacterButton in _character_buttons.get_children():
 		button.shop_requested.connect(shop_requested.emit)
+		frames_by_id[button.character_id] = button.frames
+	shop.build(frames_by_id)
+	shop.closed.connect(show_start)
 	%ShopButton.pressed.connect(shop_requested.emit.bind(&""))
 	var free: Dictionary[StringName, bool] = {}
 	for id in CharacterCatalog.free_ids():
@@ -70,7 +75,15 @@ func select_character(id: StringName) -> void:
 			button.button_pressed = true
 
 
+func show_shop(coins: int, owned: Dictionary, focus_id: StringName) -> void:
+	_start_screen.hide()
+	%BackButton.hide()
+	_shop_bar.hide()
+	shop.open(coins, owned, focus_id)
+
+
 func show_start() -> void:
+	shop.hide()
 	_start_screen.show()
 	%BackButton.show()
 	_shop_bar.show()

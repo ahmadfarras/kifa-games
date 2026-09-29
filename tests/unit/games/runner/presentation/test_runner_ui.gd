@@ -243,3 +243,4 @@ func test_show_game_over_shows_results() -> void:
 	assert_eq(ui.get_node("%FinalBestLabel").text, "🏆 15")
 	assert_eq(ui.get_node("%FinalCoinsLabel").text, "+8 🪙")
 	assert_eq(ui.get_node("%BestLabel").text, "🏆 15")
+

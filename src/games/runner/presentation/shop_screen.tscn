@@ -1,0 +1,288 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/games/runner/presentation/shop_screen.gd" id="1_shop"]
+[ext_resource type="Script" path="res://src/games/runner/presentation/shop_card.gd" id="2_card"]
+[ext_resource type="Script" path="res://src/games/runner/presentation/character_button.gd" id="3_button"]
+[ext_resource type="SpriteFrames" path="res://assets/runner/characters/little_girl.tres" id="4_placeholder"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/white_card.tres" id="5_card"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/green_button.tres" id="6_green"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/pink_button.tres" id="7_pink"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/round_white.tres" id="8_round"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/no_focus.tres" id="9_no_focus"]
+
+[sub_resource type="ButtonGroup" id="shop_cards"]
+
+[sub_resource type="StyleBoxEmpty" id="art_normal"]
+
+[sub_resource type="StyleBoxFlat" id="art_focused"]
+bg_color = Color(1, 0.973, 0.886, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="chip"]
+content_margin_left = 24.0
+content_margin_top = 8.0
+content_margin_right = 24.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 1
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="bar_background"]
+bg_color = Color(0.9, 0.9, 0.9, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="bar_fill"]
+bg_color = Color(1, 0.624, 0.11, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="shop_card"]
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 1
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="grey_button"]
+content_margin_left = 32.0
+content_margin_top = 16.0
+content_margin_right = 32.0
+content_margin_bottom = 16.0
+bg_color = Color(0.85, 0.85, 0.85, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+
+[node name="ShopScreen" type="ColorRect"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 0.973, 0.918, 0.96)
+script = ExtResource("1_shop")
+
+[node name="CloseButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 100.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 36
+theme_override_styles/focus = ExtResource("9_no_focus")
+theme_override_styles/normal = ExtResource("8_round")
+theme_override_styles/hover = ExtResource("8_round")
+theme_override_styles/pressed = ExtResource("8_round")
+text = "⬅️"
+
+[node name="ShopCoinsLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -224.0
+offset_top = 30.0
+offset_right = -24.0
+offset_bottom = 94.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("chip")
+text = "🪙 0"
+horizontal_alignment = 1
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Layout" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="Title" type="Label" parent="Center/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.624, 0.11, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 16
+theme_override_font_sizes/font_size = 64
+text = "Shop 🛒"
+horizontal_alignment = 1
+
+[node name="Cards" type="HFlowContainer" parent="Center/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(620, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
+alignment = 1
+
+[node name="CardTemplate" type="PanelContainer" parent="Center/Layout/Cards"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("shop_card")
+script = ExtResource("2_card")
+
+[node name="Layout" type="VBoxContainer" parent="Center/Layout/Cards/CardTemplate"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Art" type="Button" parent="Center/Layout/Cards/CardTemplate/Layout"]
+custom_minimum_size = Vector2(150, 130)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("shop_cards")
+theme_override_styles/focus = ExtResource("9_no_focus")
+theme_override_styles/normal = SubResource("art_normal")
+theme_override_styles/hover = SubResource("art_normal")
+theme_override_styles/pressed = SubResource("art_focused")
+theme_override_styles/hover_pressed = SubResource("art_focused")
+icon_alignment = 1
+expand_icon = true
+script = ExtResource("3_button")
+frames = ExtResource("4_placeholder")
+
+[node name="OwnedLabel" type="Label" parent="Center/Layout/Cards/CardTemplate/Layout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "✅"
+horizontal_alignment = 1
+
+[node name="BuyButton" type="Button" parent="Center/Layout/Cards/CardTemplate/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_disabled_color = Color(0.55, 0.55, 0.55, 1)
+theme_override_font_sizes/font_size = 28
+theme_override_styles/focus = ExtResource("9_no_focus")
+theme_override_styles/normal = ExtResource("6_green")
+theme_override_styles/hover = ExtResource("6_green")
+theme_override_styles/pressed = ExtResource("6_green")
+theme_override_styles/disabled = SubResource("grey_button")
+text = "🪙 0"
+
+[node name="Bar" type="ProgressBar" parent="Center/Layout/Cards/CardTemplate/Layout"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("bar_background")
+theme_override_styles/fill = SubResource("bar_fill")
+show_percentage = false
+
+[node name="BarLabel" type="Label" parent="Center/Layout/Cards/CardTemplate/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.467, 0.467, 0.467, 1)
+theme_override_font_sizes/font_size = 24
+text = "🪙 0 / 0"
+horizontal_alignment = 1
+
+[node name="ConfirmPanel" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.45)
+
+[node name="Center" type="CenterContainer" parent="ConfirmPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="ConfirmPanel/Center"]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("5_card")
+
+[node name="Layout" type="VBoxContainer" parent="ConfirmPanel/Center/Card"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="ConfirmArt" type="TextureRect" parent="ConfirmPanel/Center/Card/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 220)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ConfirmPrice" type="Label" parent="ConfirmPanel/Center/Card/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.333, 0.333, 0.333, 1)
+theme_override_font_sizes/font_size = 56
+text = "🪙 0"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="ConfirmPanel/Center/Card/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="YesButton" type="Button" parent="ConfirmPanel/Center/Card/Layout/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 40
+theme_override_styles/focus = ExtResource("9_no_focus")
+theme_override_styles/normal = ExtResource("6_green")
+theme_override_styles/hover = ExtResource("6_green")
+theme_override_styles/pressed = ExtResource("6_green")
+text = "✅ Yes"
+
+[node name="NoButton" type="Button" parent="ConfirmPanel/Center/Card/Layout/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 40
+theme_override_styles/focus = ExtResource("9_no_focus")
+theme_override_styles/normal = ExtResource("7_pink")
+theme_override_styles/hover = ExtResource("7_pink")
+theme_override_styles/pressed = ExtResource("7_pink")
+text = "❌ No"
