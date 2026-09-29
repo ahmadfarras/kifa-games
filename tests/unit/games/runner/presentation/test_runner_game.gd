@@ -305,6 +305,14 @@ func test_play_again_starts_fresh_run_without_old_obstacles() -> void:
 	assert_eq(_visible_obstacle_sprites().size(), 0)
 
 
+func test_back_button_requests_exit() -> void:
+	watch_signals(game)
+
+	ui.back_pressed.emit()
+
+	assert_signal_emitted(game, "exit_requested")
+
+
 func test_change_runner_returns_to_start_screen() -> void:
 	_choose_runner()
 	_crash()

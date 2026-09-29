@@ -106,13 +106,24 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 - **Gap** — distance until the next obstacle spawns; scales with speed so it stays jumpable.
 - **Score** — stars earned, 2 per second of running. **Best score** — highest score, persisted.
 
+**Match** (`src/games/match`)
+- **Card** — shows a **face** (which animal; an index into the pictures); face up or down; matched once its pair is found.
+- **Round** (`MatchRound`) — one board dealt for a level; the kid flips two cards at a time.
+- **Match / Mismatch** — two flipped cards with the same face stay open and light a star; different faces wobble and flip back after a short pause (taps are ignored meanwhile).
+- **Level** — number of pairs: 3 (⭐), 6 (⭐⭐), 8 (⭐⭐⭐).
+
+**App** (`src/app`)
+- **Hub** — the main menu where the kid picks a game.
+
 ## Conventions
 
 - Code, identifiers and commit messages in English.
+- **Navigation:** `src/app/main.gd` is the router and composition root. It shows the Hub, builds a game (with its dependencies) when picked and frees it on the game's `exit_requested` signal. Scenes are `load()`ed on demand, never `preload()`ed in main, so only the running game's art is in memory.
+- Games are event driven where possible (signals, `Timer`, `Tween`); Match has no `_process` at all. Animation speed is exposed (e.g. `CardView.animation_speed`) so tests run animations in a few frames instead of waiting real time.
 - `class_name` for every domain/application/infrastructure class; typed GDScript everywhere.
 - Input only via InputMap actions (e.g. `jump`: Space, Up, click/tap), never raw keycodes.
 - Renderer is `gl_compatibility` (the only one the Web export supports). Base viewport 720×720 + stretch `canvas_items`/`expand`, so UI sizes follow the shortest screen side in both portrait and landscape.
-- Runner characters are `AnimatedSprite2D` + a generated `SpriteFrames` (`assets/runner/characters/<name>.tres`) with animations `idle`, `run`, `jump`, `dead`. **Add a character** = raw frames in `assets/runner/characters/raw/<name>/` + an entry in `CHARACTERS` in the asset tool (with fps so durations match other characters, e.g. run cycle ≈ 0.7 s) + re-run the tool + a `CharacterButton` in `runner_ui.tscn` (duplicate an existing one: it must keep `toggle_mode` and the shared `characters` ButtonGroup). `RunnerSprite` sizes and anchors the feet from `metadata/bodies` written by the tool, so no pixels are read at runtime. Art changes touch only `presentation/`, `assets/` and the tool. Emoji remain only in UI text.
+- Runner characters are `AnimatedSprite2D` + a generated `SpriteFrames` (`assets/runner/characters/<name>.tres`) with animations `idle`, `run`, `jump`, `dead`. **Add a character** = raw frames in `assets/runner/characters/raw/<name>/` + an entry in `CHARACTERS` in the asset tool (with fps so durations match other characters, e.g. run cycle ≈ 0.7 s) + re-run the tool + a `CharacterButton` in `runner_ui.tscn` (duplicate an existing one: it must keep `toggle_mode` and the shared `characters` ButtonGroup). `RunnerSprite` sizes and anchors the feet from `metadata/bodies` written by the tool, so no pixels are read at runtime. Art changes touch only `presentation/`, `assets/` and the tool. Emoji remain only in UI text and as Match card faces (placeholder: swap to textures in `match/presentation` only).
 - **Textures import as lossy WebP (quality 0.8) by default** (`[importer_defaults]` in `project.godot`): small downloads, same VRAM. Switch a single texture to lossless only if lossy visibly hurts it.
 - **Character sheets:** the tool scales every character so its standing body is `BODY_HEIGHT` (193) px, crops each frame to its visible pixels and shelf-packs one sheet per animation (≤ 2048 px wide); `AtlasTexture.margin` restores the common frame box so frames stay aligned. Unused raw frames (e.g. Walk) never reach the export.
 - **Art pipeline:** raw asset packs stay in git but inside folders with a `.gdignore` (never imported or exported). `tools/prepare_runner_assets.gd` crops padding, merges/crops parallax layers to the rows that can be visible, halves their size, cuts trees out of the tree layer, and writes game-ready PNGs to `assets/runner/backgrounds/{layers,trees,decorations}/` and `assets/runner/obstacles/`. Change the tool and re-run it instead of editing generated files by hand.

@@ -62,6 +62,22 @@ func test_start_emits_selected_character() -> void:
 	assert_signal_emitted_with_parameters(ui, "runner_chosen", [_character_button(1).frames])
 
 
+func test_back_button_emits_signal() -> void:
+	watch_signals(ui)
+
+	ui.get_node("%BackButton").pressed.emit()
+
+	assert_signal_emitted(ui, "back_pressed")
+
+
+func test_back_button_only_on_start_screen() -> void:
+	ui.show_playing(0)
+	assert_false(ui.get_node("%BackButton").visible)
+
+	ui.show_start()
+	assert_true(ui.get_node("%BackButton").visible)
+
+
 func test_play_again_button_emits_signal() -> void:
 	watch_signals(ui)
 

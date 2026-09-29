@@ -82,6 +82,16 @@ shadow_offset = Vector2(0, 8)
 
 [sub_resource type="ButtonGroup" id="characters"]
 
+[sub_resource type="StyleBoxFlat" id="round_white"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 1
+shadow_offset = Vector2(0, 5)
+
 [sub_resource type="StyleBoxEmpty" id="no_focus"]
 
 [node name="RunnerUi" type="Control"]
@@ -210,6 +220,21 @@ theme_override_styles/normal = SubResource("green_button")
 theme_override_styles/hover = SubResource("green_button")
 theme_override_styles/pressed = SubResource("green_button")
 text = "▶ Start!"
+
+[node name="BackButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 100.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 36
+theme_override_styles/focus = SubResource("no_focus")
+theme_override_styles/normal = SubResource("round_white")
+theme_override_styles/hover = SubResource("round_white")
+theme_override_styles/pressed = SubResource("round_white")
+text = "⬅️"
 
 [node name="GameOverScreen" type="ColorRect" parent="."]
 unique_name_in_owner = true

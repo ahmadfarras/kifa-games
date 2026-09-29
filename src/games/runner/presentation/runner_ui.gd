@@ -8,6 +8,7 @@ signal character_selected(frames: SpriteFrames)
 signal runner_chosen(frames: SpriteFrames)
 signal play_again_pressed
 signal change_runner_pressed
+signal back_pressed
 
 const SCORE_POP_EVERY := 10
 const SCORE_POP_SCALE := Vector2(1.25, 1.25)
@@ -29,6 +30,7 @@ func _ready() -> void:
 	%StartButton.pressed.connect(_on_start_pressed)
 	%PlayAgainButton.pressed.connect(play_again_pressed.emit)
 	%ChangeRunnerButton.pressed.connect(change_runner_pressed.emit)
+	%BackButton.pressed.connect(back_pressed.emit)
 
 
 func selected_character() -> SpriteFrames:
@@ -38,12 +40,14 @@ func selected_character() -> SpriteFrames:
 
 func show_start() -> void:
 	_start_screen.show()
+	%BackButton.show()
 	_score_bar.hide()
 	_game_over_screen.hide()
 
 
 func show_playing(best_score: int) -> void:
 	_start_screen.hide()
+	%BackButton.hide()
 	_game_over_screen.hide()
 	_score_bar.show()
 	_score_label.text = _score_text(0)

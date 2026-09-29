@@ -4,6 +4,8 @@ extends Node2D
 ## Draws the Runner world and forwards input to RunnerSession.
 ## Domain units are converted to pixels with _unit (= shortest screen side).
 
+signal exit_requested
+
 # Visible body height relative to the hitbox size; a bit bigger reads better on small screens.
 const RUNNER_DRAW_SCALE := 1.25
 ## Size of one obstacle texture pixel in domain units, so obstacle footprints (hitboxes) come from the art.
@@ -44,6 +46,7 @@ func _ready() -> void:
 	_ui.runner_chosen.connect(_on_runner_chosen)
 	_ui.play_again_pressed.connect(_start_run)
 	_ui.change_runner_pressed.connect(_ui.show_start)
+	_ui.back_pressed.connect(exit_requested.emit)
 	_game_over_timer.timeout.connect(_on_game_over_timer_timeout)
 	get_viewport().size_changed.connect(_layout)
 	_layout()
