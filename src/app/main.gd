@@ -9,12 +9,24 @@ const RUNNER_GAME_SCENE := "res://src/games/runner/presentation/runner_game.tscn
 const MATCH_GAME_SCENE := "res://src/games/match/presentation/match_game.tscn"
 const MATH_GAME_SCENE := "res://src/games/math/presentation/math_game.tscn"
 const COLORING_GAME_SCENE := "res://src/games/coloring/presentation/coloring_game.tscn"
+## Only the emoji the UI uses (see tools/subset_emoji_font.py).
+const EMOJI_FONT := "res://assets/shared/fonts/noto_color_emoji_subset.ttf"
 
 var _current: Node
 
 
 func _ready() -> void:
+	use_bundled_emoji()
 	show_hub()
+
+
+## Browsers give Godot no system emoji font, so emoji glyphs come from a bundled font that every
+## text falls back to (desktop and mobile then look the same as Web).
+static func use_bundled_emoji() -> void:
+	var default_font := ThemeDB.fallback_font
+	var emoji: Font = load(EMOJI_FONT)
+	if not default_font.fallbacks.has(emoji):
+		default_font.fallbacks = default_font.fallbacks + [emoji]
 
 
 func show_hub() -> void:

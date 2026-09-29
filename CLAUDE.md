@@ -39,6 +39,12 @@ godot --headless --import                    # import project, register class_na
 godot --headless -s addons/gut/gut_cmdln.gd  # run all unit tests (GUT 9.7.1, settings in .gutconfig.json)
 godot --path .                               # run the game
 godot --headless -s tools/prepare_runner_assets.gd  # regenerate Runner art from the raw packs
+python3 tools/subset_emoji_font.py <NotoColorEmoji.ttf>  # rebuild the emoji font after adding/removing emoji in src/
+
+# Web build + Firebase Hosting (project "kifa-games", see firebase.json)
+godot --headless --export-release "Web" build/web/index.html
+firebase hosting:channel:deploy preview      # temporary preview URL, live site untouched
+firebase deploy --only hosting               # replace the live site (only after the preview is checked)
 ```
 
 ## Architecture: DDD + Clean Architecture
@@ -133,6 +139,8 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 - **Navigation:** `src/app/main.gd` is the router and composition root. It shows the Hub, builds a game (with its dependencies) when picked and frees it on the game's `exit_requested` signal. Scenes are `load()`ed on demand, never `preload()`ed in main, so only the running game's art is in memory.
 - **Shared UI:** `StarProgress` (row of stars lit one by one) and `WinScreen` ("You did it!" overlay with confetti) live in `src/shared/presentation/` together with common button styles (`styles/*.tres`); Match, Math and Coloring use them (WinScreen texts are per game). Reuse them for new games instead of copying.
 - **Coloring pictures** are polygons built by `PictureLibrary` (rect / circle / ellipse with SVG-style rotation / `path()` for SVG `M L Q Z` strings). `ColoringCanvas` draws the whole picture in one `_draw()` and redraws only when a colour changes; taps use point-in-polygon from the top shape down. Add a picture = id + icon + builder in `PictureLibrary` (keep regions as closed shapes).
+- **Emoji:** Web builds have no system emoji font, so `main.gd` adds a bundled Noto Color Emoji subset (`assets/shared/fonts/`) as fallback of the default font. After adding a new emoji anywhere in `src/`, re-run `tools/subset_emoji_font.py` or it shows as an empty box on Web.
+- **Export:** `export_presets.cfg` is committed (Godot keeps passwords in `.godot/export_credentials.cfg`). The Web preset excludes `addons/gut`, `tests/`, `tools/` and is single-threaded (no special COOP/COEP headers needed on hosting).
 - Games are event driven where possible (signals, `Timer`, `Tween`); Match, Math and Coloring have no `_process` at all. Animation speed is exposed (e.g. `CardView.animation_speed`) so tests run animations in a few frames instead of waiting real time.
 - `class_name` for every domain/application/infrastructure class; typed GDScript everywhere.
 - Input only via InputMap actions (e.g. `jump`: Space, Up, click/tap), never raw keycodes.

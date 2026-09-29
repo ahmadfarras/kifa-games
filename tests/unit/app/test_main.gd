@@ -17,6 +17,24 @@ func _current() -> Node:
 	return null
 
 
+func test_default_font_falls_back_to_bundled_emoji_once() -> void:
+	var emoji: Font = load(main.EMOJI_FONT)
+
+	main.use_bundled_emoji()
+
+	assert_eq(ThemeDB.fallback_font.fallbacks.count(emoji), 1)
+
+
+func test_emoji_font_has_every_emoji_used() -> void:
+	var emoji: Font = load(main.EMOJI_FONT)
+
+	for text in ["⬅️", "🏠", "⭐", "🏆", "✨", "🧽", "✅", "🌈", "🐶", "🦄", "🎲", "💫"]:
+		for char in text:
+			# U+FE0F only selects emoji style (handled by the font's variation table); it has no glyph.
+			if char.unicode_at(0) != 0xFE0F:
+				assert_true(emoji.has_char(char.unicode_at(0)), "missing %s" % char)
+
+
 func test_starts_on_hub() -> void:
 	assert_true(_current() is Hub)
 

@@ -2,7 +2,6 @@
 .godot/
 .import/
 export.cfg
-export_presets.cfg
 *.translation
 
 # Exported builds
@@ -25,3 +24,6 @@ keystore.jks
 .DS_Store
 
 MIGRATION.md
+
+# Firebase CLI cache
+.firebase/
