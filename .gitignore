@@ -27,3 +27,6 @@ MIGRATION.md
 
 # Firebase CLI cache
 .firebase/
+
+.vscode/
+docs/
