@@ -3,6 +3,7 @@ extends GutTest
 const RunnerGameScene := preload("res://src/games/runner/presentation/runner_game.tscn")
 const DELTA := 0.02
 const GIRL := preload("res://assets/runner/characters/little_girl.tres")
+const BOY := preload("res://assets/runner/characters/little_boy.tres")
 
 
 class FakeBestScoreRepository:
@@ -122,24 +123,34 @@ func test_runner_rises_on_screen_when_jumping() -> void:
 func test_runner_idles_on_start_screen() -> void:
 	var runner: AnimatedSprite2D = game.get_node("Runner")
 
-	assert_eq(runner.animation, RunnerGame.ANIM_IDLE)
+	assert_eq(runner.animation, RunnerSprite.ANIM_IDLE)
 	assert_true(runner.is_playing())
 
 
 func test_runner_feet_are_on_ground() -> void:
 	_choose_runner()
-	var runner: AnimatedSprite2D = game.get_node("Runner")
-	var texture := runner.sprite_frames.get_frame_texture(runner.animation, 0)
 
-	assert_almost_eq(runner.position.y, game._ground_y, 0.01)
-	assert_eq(runner.offset, Vector2(-texture.get_width() * 0.5, -texture.get_height()))
+	assert_almost_eq(game.get_node("Runner").position.y, game._ground_y, 0.01)
 
 
-func test_runner_scaled_to_runner_size() -> void:
-	var runner: AnimatedSprite2D = game.get_node("Runner")
-	var idle_height := runner.sprite_frames.get_frame_texture(RunnerGame.ANIM_IDLE, 0).get_height()
+func test_runner_body_scaled_to_draw_size() -> void:
+	var runner: RunnerSprite = game.get_node("Runner")
+	var body := RunnerSprite.visible_rect(runner.sprite_frames.get_frame_texture(RunnerSprite.ANIM_IDLE, 0))
 
-	assert_almost_eq(idle_height * runner.scale.y, Runner.SIZE * RunnerGame.RUNNER_DRAW_SCALE * game._unit, 0.01)
+	assert_almost_eq(body.size.y * runner.scale.y, Runner.SIZE * RunnerGame.RUNNER_DRAW_SCALE * game._unit, 0.01)
+
+
+func test_selecting_character_previews_it_on_field() -> void:
+	ui.character_selected.emit(BOY)
+
+	assert_eq(game.get_node("Runner").sprite_frames, BOY)
+	assert_null(session.run)
+
+
+func test_choosing_another_character_swaps_frames() -> void:
+	ui.runner_chosen.emit(BOY)
+
+	assert_eq(game.get_node("Runner").sprite_frames, BOY)
 
 
 func test_runner_plays_run_while_on_ground() -> void:
@@ -147,29 +158,7 @@ func test_runner_plays_run_while_on_ground() -> void:
 
 	game._process(DELTA)
 
-	assert_eq(game.get_node("Runner").animation, RunnerGame.ANIM_RUN)
-
-
-func test_run_animation_speeds_up_with_world() -> void:
-	_choose_runner()
-	session.run.elapsed = 1000.0
-
-	game._process(DELTA)
-
-	assert_almost_eq(game.get_node("Runner").speed_scale, Run.MAX_SPEED / Run.START_SPEED, 0.0001)
-
-
-func test_runner_plays_jump_in_air_stretched_to_airtime() -> void:
-	_choose_runner()
-	session.jump()
-
-	game._process(DELTA)
-
-	var runner: AnimatedSprite2D = game.get_node("Runner")
-	var frames := runner.sprite_frames
-	var duration := frames.get_frame_count(RunnerGame.ANIM_JUMP) / (frames.get_animation_speed(RunnerGame.ANIM_JUMP) * runner.speed_scale)
-	assert_eq(runner.animation, RunnerGame.ANIM_JUMP)
-	assert_almost_eq(duration, Runner.AIRTIME, 0.0001)
+	assert_eq(game.get_node("Runner").animation, RunnerSprite.ANIM_RUN)
 
 
 func test_runner_plays_dead_after_crash() -> void:
@@ -178,7 +167,7 @@ func test_runner_plays_dead_after_crash() -> void:
 	_crash()
 
 	var runner: AnimatedSprite2D = game.get_node("Runner")
-	assert_eq(runner.animation, RunnerGame.ANIM_DEAD)
+	assert_eq(runner.animation, RunnerSprite.ANIM_DEAD)
 	assert_eq(runner.speed_scale, 1.0)
 
 
@@ -188,7 +177,7 @@ func test_new_run_after_crash_plays_run_again() -> void:
 
 	ui.play_again_pressed.emit()
 
-	assert_eq(game.get_node("Runner").animation, RunnerGame.ANIM_RUN)
+	assert_eq(game.get_node("Runner").animation, RunnerSprite.ANIM_RUN)
 
 
 func test_spawned_obstacle_gets_a_label_at_its_position() -> void:

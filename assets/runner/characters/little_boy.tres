@@ -1,0 +1,265 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (1).png" id="1_1ulmb"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (2).png" id="2_uky1v"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (3).png" id="3_je2xe"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (4).png" id="4_k15nx"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (5).png" id="5_ergyf"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (6).png" id="6_t73lr"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (7).png" id="7_2cuns"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (8).png" id="8_u4yqq"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (9).png" id="9_q8vio"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (10).png" id="10_pqm60"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (11).png" id="11_gisna"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (12).png" id="12_5qebk"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (13).png" id="13_kvsqj"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (14).png" id="14_onmlt"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Dead (15).png" id="15_bxm1x"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (1).png" id="16_bnw5d"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (2).png" id="17_o7f5i"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (3).png" id="18_gr6mk"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (4).png" id="19_c06ww"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (5).png" id="20_mhsy3"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (6).png" id="21_evakd"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (7).png" id="22_un2g8"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (8).png" id="23_mgxpn"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (9).png" id="24_e5m4g"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (10).png" id="25_8ftma"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (11).png" id="26_qa2c7"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (12).png" id="27_tdcnv"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (13).png" id="28_vf5hj"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (14).png" id="29_21c6k"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Idle (15).png" id="30_c1baf"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (1).png" id="31_oi3a5"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (2).png" id="32_7esxi"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (3).png" id="33_7whka"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (4).png" id="34_2gsmn"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (5).png" id="35_wisvh"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (6).png" id="36_v2x27"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (7).png" id="37_1vqw7"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (8).png" id="38_frh0a"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (9).png" id="39_fs32m"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (10).png" id="40_rs06v"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (11).png" id="41_onuwi"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (12).png" id="42_knwq6"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (13).png" id="43_11qxr"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (14).png" id="44_o5irw"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Jump (15).png" id="45_p2bsd"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (1).png" id="46_pt2by"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (2).png" id="47_jic8v"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (3).png" id="48_2vk5v"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (4).png" id="49_637xg"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (5).png" id="50_7p5yq"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (6).png" id="51_1vek8"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (7).png" id="52_4fu3a"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (8).png" id="53_doykt"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (9).png" id="54_8iwi1"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (10).png" id="55_jxaif"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (11).png" id="56_kwpao"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (12).png" id="57_n2fro"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (13).png" id="58_naq0r"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (14).png" id="59_es06e"]
+[ext_resource type="Texture2D" path="res://assets/runner/characters/little_boy/Run (15).png" id="60_icwck"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_1ulmb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_uky1v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_je2xe")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_k15nx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_ergyf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_t73lr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_2cuns")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_u4yqq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_q8vio")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_pqm60")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_gisna")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_5qebk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_kvsqj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_onmlt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_bxm1x")
+}],
+"loop": 0,
+"name": &"dead",
+"speed": 15.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("16_bnw5d")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_o7f5i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_gr6mk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_c06ww")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_mhsy3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_evakd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_un2g8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_mgxpn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_e5m4g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_8ftma")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_qa2c7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_tdcnv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_vf5hj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_21c6k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_c1baf")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 20.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("31_oi3a5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_7esxi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_7whka")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_2gsmn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_wisvh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_v2x27")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_1vqw7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_frh0a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_fs32m")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_rs06v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_onuwi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("42_knwq6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_11qxr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_o5irw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_p2bsd")
+}],
+"loop": 0,
+"name": &"jump",
+"speed": 30.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("46_pt2by")
+}, {
+"duration": 1.0,
+"texture": ExtResource("47_jic8v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_2vk5v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_637xg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_7p5yq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("51_1vek8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("52_4fu3a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("53_doykt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("54_8iwi1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("55_jxaif")
+}, {
+"duration": 1.0,
+"texture": ExtResource("56_kwpao")
+}, {
+"duration": 1.0,
+"texture": ExtResource("57_n2fro")
+}, {
+"duration": 1.0,
+"texture": ExtResource("58_naq0r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("59_es06e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("60_icwck")
+}],
+"loop": 1,
+"name": &"run",
+"speed": 22.0
+}]

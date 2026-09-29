@@ -1,8 +1,10 @@
 class_name RunnerUi
 extends Control
 
-## Start screen, score bar and game-over screen. Emits what the kid pressed; holds no game rules.
+## Start screen (select a character, then Start), score bar and game-over screen.
+## Emits what the kid pressed; holds no game rules.
 
+signal character_selected(frames: SpriteFrames)
 signal runner_chosen(frames: SpriteFrames)
 signal play_again_pressed
 signal change_runner_pressed
@@ -22,10 +24,16 @@ const SCORE_POP_SECONDS := 0.15
 
 
 func _ready() -> void:
-	for button: CharacterButton in _character_buttons.get_children():
-		button.pressed.connect(runner_chosen.emit.bind(button.frames))
+	var group := (_character_buttons.get_child(0) as CharacterButton).button_group
+	group.pressed.connect(func(button: CharacterButton) -> void: character_selected.emit(button.frames))
+	%StartButton.pressed.connect(_on_start_pressed)
 	%PlayAgainButton.pressed.connect(play_again_pressed.emit)
 	%ChangeRunnerButton.pressed.connect(change_runner_pressed.emit)
+
+
+func selected_character() -> SpriteFrames:
+	var group := (_character_buttons.get_child(0) as CharacterButton).button_group
+	return (group.get_pressed_button() as CharacterButton).frames
 
 
 func show_start() -> void:
@@ -53,6 +61,10 @@ func show_game_over(score: int, best_score: int) -> void:
 	_final_best_label.text = _best_text(best_score)
 	_best_label.text = _best_text(best_score)
 	_game_over_screen.show()
+
+
+func _on_start_pressed() -> void:
+	runner_chosen.emit(selected_character())
 
 
 func _pop(label: Label) -> void:

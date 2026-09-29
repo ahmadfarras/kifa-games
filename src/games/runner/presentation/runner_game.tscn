@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://src/games/runner/presentation/runner_game.gd" id="1_game"]
 [ext_resource type="PackedScene" path="res://src/games/runner/presentation/runner_ui.tscn" id="2_ui"]
 [ext_resource type="SpriteFrames" path="res://assets/runner/characters/little_girl.tres" id="3_girl"]
+[ext_resource type="Script" path="res://src/games/runner/presentation/runner_sprite.gd" id="4_sprite"]
 
 [sub_resource type="Gradient" id="sky_colors"]
 offsets = PackedFloat32Array(0, 0.7, 1)
@@ -51,6 +52,7 @@ sprite_frames = ExtResource("3_girl")
 animation = &"idle"
 autoplay = "idle"
 centered = false
+script = ExtResource("4_sprite")
 
 [node name="GameOverTimer" type="Timer" parent="."]
 wait_time = 1.0

@@ -10,19 +10,56 @@ func before_each() -> void:
 	add_child_autofree(ui)
 
 
-func test_character_button_emits_runner_chosen() -> void:
-	watch_signals(ui)
-	var button: CharacterButton = ui.get_node("%CharacterButtons").get_child(0)
-
-	button.pressed.emit()
-
-	assert_signal_emitted_with_parameters(ui, "runner_chosen", [button.frames])
+func _character_button(index: int) -> CharacterButton:
+	return ui.get_node("%CharacterButtons").get_child(index)
 
 
-func test_character_buttons_show_first_idle_frame() -> void:
+func test_offers_girl_and_boy() -> void:
+	var paths := []
 	for button: CharacterButton in ui.get_node("%CharacterButtons").get_children():
-		assert_not_null(button.frames)
-		assert_eq(button.icon, button.frames.get_frame_texture(RunnerGame.ANIM_IDLE, 0))
+		paths.append(button.frames.resource_path)
+
+	assert_eq(paths, ["res://assets/runner/characters/little_girl.tres", "res://assets/runner/characters/little_boy.tres"])
+
+
+func test_first_character_is_selected_by_default() -> void:
+	assert_true(_character_button(0).button_pressed)
+	assert_eq(ui.selected_character(), _character_button(0).frames)
+
+
+func test_pressing_character_only_selects_it() -> void:
+	watch_signals(ui)
+
+	_character_button(1).button_pressed = true
+
+	assert_false(_character_button(0).button_pressed)
+	assert_eq(ui.selected_character(), _character_button(1).frames)
+	assert_signal_not_emitted(ui, "runner_chosen")
+
+
+func test_selecting_character_emits_character_selected() -> void:
+	watch_signals(ui)
+
+	_character_button(1).pressed.emit()
+	_character_button(1).button_pressed = true
+
+	assert_signal_emitted_with_parameters(ui, "character_selected", [_character_button(1).frames])
+
+
+func test_only_selected_character_animates() -> void:
+	_character_button(1).button_pressed = true
+
+	assert_false(_character_button(0).is_processing())
+	assert_true(_character_button(1).is_processing())
+
+
+func test_start_emits_selected_character() -> void:
+	_character_button(1).button_pressed = true
+	watch_signals(ui)
+
+	ui.get_node("%StartButton").pressed.emit()
+
+	assert_signal_emitted_with_parameters(ui, "runner_chosen", [_character_button(1).frames])
 
 
 func test_play_again_button_emits_signal() -> void:
