@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/shared/presentation/parent_gate.gd" id="1_gate"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/round_white.tres" id="2_round"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/no_focus.tres" id="3_no_focus"]
+
+[node name="ParentGate" type="VBoxContainer"]
+theme_override_constants/separation = 12
+alignment = 1
+script = ExtResource("1_gate")
+
+[node name="Question" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 48
+text = "7 × 8 = ?"
+horizontal_alignment = 1
+
+[node name="Answer" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.42, 0.616, 1)
+theme_override_font_sizes/font_size = 56
+text = "?"
+horizontal_alignment = 1
+
+[node name="Keys" type="GridContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 3
+
+[node name="KeyTemplate" type="Button" parent="Keys"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(84, 68)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 34
+theme_override_styles/focus = ExtResource("3_no_focus")
+theme_override_styles/normal = ExtResource("2_round")
+theme_override_styles/hover = ExtResource("2_round")
+theme_override_styles/pressed = ExtResource("2_round")
+text = "0"

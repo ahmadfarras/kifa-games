@@ -1,0 +1,436 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/account/presentation/account_screen.gd" id="1_screen"]
+[ext_resource type="PackedScene" path="res://src/shared/presentation/parent_gate.tscn" id="2_gate"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/white_card.tres" id="3_card"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/round_white.tres" id="4_round"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/no_focus.tres" id="5_no_focus"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/green_button.tres" id="6_green"]
+[ext_resource type="StyleBox" path="res://src/shared/presentation/styles/pink_button.tres" id="7_pink"]
+
+[sub_resource type="Gradient" id="sky_colors"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(0.682, 0.914, 1, 1, 1, 0.894, 0.945, 1, 1, 0.953, 0.769, 1)
+
+[sub_resource type="GradientTexture2D" id="sky_texture"]
+gradient = SubResource("sky_colors")
+width = 64
+height = 64
+fill_from = Vector2(0.35, 0)
+fill_to = Vector2(0.65, 1)
+
+[sub_resource type="StyleBoxFlat" id="field"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.953, 0.961, 0.973, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.83, 0.87, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="field_focus"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.953, 0.961, 0.973, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.42, 0.616, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="AccountScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_screen")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("sky_texture")
+expand_mode = 1
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(540, 0)
+layout_mode = 2
+theme_override_styles/panel = ExtResource("3_card")
+
+[node name="Layout" type="VBoxContainer" parent="Center/Card"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.42, 0.616, 1)
+theme_override_font_sizes/font_size = 34
+text = "Title"
+horizontal_alignment = 1
+
+[node name="Message" type="Label" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 24
+text = "Message"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="GuestPage" type="VBoxContainer" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="LoginChoiceButton" type="Button" parent="Center/Card/Layout/GuestPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = ExtResource("5_no_focus")
+theme_override_styles/normal = ExtResource("6_green")
+theme_override_styles/hover = ExtResource("6_green")
+theme_override_styles/pressed = ExtResource("6_green")
+text = "I have an account"
+
+[node name="CreateChoiceButton" type="Button" parent="Center/Card/Layout/GuestPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = ExtResource("5_no_focus")
+theme_override_styles/normal = ExtResource("7_pink")
+theme_override_styles/hover = ExtResource("7_pink")
+theme_override_styles/pressed = ExtResource("7_pink")
+text = "Create an account"
+
+[node name="Gate" parent="Center/Card/Layout" instance=ExtResource("2_gate")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="CreatePage" type="VBoxContainer" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="NewName" type="LineEdit" parent="Center/Card/Layout/CreatePage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/caret_color = Color(1, 0.42, 0.616, 1)
+theme_override_constants/caret_width = 4
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("field_focus")
+theme_override_styles/normal = SubResource("field")
+placeholder_text = "Nickname"
+max_length = 16
+context_menu_enabled = false
+caret_blink = true
+
+[node name="NewPassword" type="LineEdit" parent="Center/Card/Layout/CreatePage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/caret_color = Color(1, 0.42, 0.616, 1)
+theme_override_constants/caret_width = 4
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("field_focus")
+theme_override_styles/normal = SubResource("field")
+placeholder_text = "Password (8 letters or more)"
+max_length = 64
+context_menu_enabled = false
+caret_blink = true
+secret = true
+
+[node name="CreateButton" type="Button" parent="Center/Card/Layout/CreatePage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = ExtResource("5_no_focus")
+theme_override_styles/normal = ExtResource("6_green")
+theme_override_styles/hover = ExtResource("6_green")
+theme_override_styles/pressed = ExtResource("6_green")
+text = "Create"
+
+[node name="LoginPage" type="VBoxContainer" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="LoginName" type="LineEdit" parent="Center/Card/Layout/LoginPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/caret_color = Color(1, 0.42, 0.616, 1)
+theme_override_constants/caret_width = 4
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("field_focus")
+theme_override_styles/normal = SubResource("field")
+placeholder_text = "Name"
+max_length = 32
+context_menu_enabled = false
+caret_blink = true
+
+[node name="LoginPassword" type="LineEdit" parent="Center/Card/Layout/LoginPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/caret_color = Color(1, 0.42, 0.616, 1)
+theme_override_constants/caret_width = 4
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("field_focus")
+theme_override_styles/normal = SubResource("field")
+placeholder_text = "Password"
+max_length = 64
+context_menu_enabled = false
+caret_blink = true
+secret = true
+
+[node name="LoginButton" type="Button" parent="Center/Card/Layout/LoginPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = ExtResource("5_no_focus")
+theme_override_styles/normal = ExtResource("6_green")
+theme_override_styles/hover = ExtResource("6_green")
+theme_override_styles/pressed = ExtResource("6_green")
+text = "Log in"
+
+[node name="CardPage" type="VBoxContainer" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="CardName" type="Label" parent="Center/Card/Layout/CardPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 52
+text = "HappyCat27"
+horizontal_alignment = 1
+
+[node name="CardOkButton" type="Button" parent="Center/Card/Layout/CardPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = ExtResource("5_no_focus")
+theme_override_styles/normal = ExtResource("6_green")
+theme_override_styles/hover = ExtResource("6_green")
+theme_override_styles/pressed = ExtResource("6_green")
+text = "OK"
+
+[node name="AccountPage" type="VBoxContainer" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="LogOutButton" type="Button" parent="Center/Card/Layout/AccountPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = ExtResource("5_no_focus")
+theme_override_styles/normal = ExtResource("6_green")
+theme_override_styles/hover = ExtResource("6_green")
+theme_override_styles/pressed = ExtResource("6_green")
+text = "Log out"
+
+[node name="DeleteButton" type="Button" parent="Center/Card/Layout/AccountPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = ExtResource("5_no_focus")
+theme_override_styles/normal = ExtResource("7_pink")
+theme_override_styles/hover = ExtResource("7_pink")
+theme_override_styles/pressed = ExtResource("7_pink")
+text = "Delete account"
+
+[node name="ConfirmPage" type="VBoxContainer" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="ConfirmPassword" type="LineEdit" parent="Center/Card/Layout/ConfirmPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/caret_color = Color(1, 0.42, 0.616, 1)
+theme_override_constants/caret_width = 4
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("field_focus")
+theme_override_styles/normal = SubResource("field")
+placeholder_text = "Password"
+max_length = 64
+context_menu_enabled = false
+caret_blink = true
+secret = true
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Card/Layout/ConfirmPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="YesButton" type="Button" parent="Center/Card/Layout/ConfirmPage/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = ExtResource("5_no_focus")
+theme_override_styles/normal = ExtResource("7_pink")
+theme_override_styles/hover = ExtResource("7_pink")
+theme_override_styles/pressed = ExtResource("7_pink")
+text = "Yes"
+
+[node name="NoButton" type="Button" parent="Center/Card/Layout/ConfirmPage/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = ExtResource("5_no_focus")
+theme_override_styles/normal = ExtResource("6_green")
+theme_override_styles/hover = ExtResource("6_green")
+theme_override_styles/pressed = ExtResource("6_green")
+text = "No"
+
+[node name="PrivacyPage" type="VBoxContainer" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="PrivacyText" type="Label" parent="Center/Card/Layout/PrivacyPage"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 19
+text = "You can play Kifa Games without an account. Then nothing leaves this device.
+
+If a grown-up creates an account, we keep three things on Google Firebase servers: the nickname, the password (scrambled, nobody can read it) and the game progress (best score, coins, characters).
+
+We do not ask for a real name, email, age, location, photos or contacts. There are no ads and no tracking. The data is only used to bring the progress to another device. It is never sold or shared.
+
+To erase everything, log in and choose Delete account.
+
+Questions: github.com/ahmadfarras/kifa-games"
+autowrap_mode = 3
+
+[node name="ShowPassword" type="CheckBox" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_hover_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_pressed_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/focus = ExtResource("5_no_focus")
+text = "Show password"
+
+[node name="PrivacyButton" type="Button" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
+theme_override_colors/font_hover_color = Color(0.45, 0.45, 0.45, 1)
+theme_override_colors/font_pressed_color = Color(0.45, 0.45, 0.45, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/focus = ExtResource("5_no_focus")
+flat = true
+text = "Privacy"
+
+[node name="BackButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 100.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 36
+theme_override_styles/focus = ExtResource("5_no_focus")
+theme_override_styles/normal = ExtResource("4_round")
+theme_override_styles/hover = ExtResource("4_round")
+theme_override_styles/pressed = ExtResource("4_round")
+text = "⬅️"
+
+[node name="Blocker" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

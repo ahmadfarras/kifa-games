@@ -42,3 +42,21 @@ func test_runner_button_chooses_runner() -> void:
 	hub.get_node("%RunnerButton").pressed.emit()
 
 	assert_signal_emitted_with_parameters(hub, "game_chosen", [Hub.RUNNER])
+
+
+func test_account_button_asks_for_the_account_screen() -> void:
+	hub.get_node("%AccountButton").pressed.emit()
+
+	assert_signal_emitted(hub, "account_requested")
+
+
+func test_account_button_invites_a_guest_to_save() -> void:
+	hub.show_account("")
+
+	assert_eq(hub.get_node("%AccountButton").text, Hub.GUEST_ACCOUNT_TEXT)
+
+
+func test_account_button_shows_who_is_logged_in() -> void:
+	hub.show_account("HappyCat27")
+
+	assert_string_contains(hub.get_node("%AccountButton").text, "HappyCat27")

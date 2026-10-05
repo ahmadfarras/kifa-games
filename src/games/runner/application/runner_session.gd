@@ -55,6 +55,11 @@ func coins() -> int:
 	return progress.coins
 
 
+## Tells the screens to redraw after a sync merged another device's progress into this one.
+func refresh_from_sync() -> void:
+	progress_changed.emit()
+
+
 func buy(id: StringName) -> Progress.Purchase:
 	var result := progress.buy(id)
 	if result == Progress.Purchase.BOUGHT:

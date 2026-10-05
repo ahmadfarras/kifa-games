@@ -1,0 +1,27 @@
+rules_version = '2';
+
+// Cloud saves: one document per account and game at saves/{uid}/games/{game}.
+// An account may only touch its own documents. Each game has its own block that checks the shape and
+// range of what is written; a game without a block (and everything else) is denied by default.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isWholeNumberUpTo(value, max) {
+      return value is int && value >= 0 && value <= max;
+    }
+
+    match /saves/{uid}/games/runner {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['version', 'best_score', 'coins', 'owned'])
+        && request.resource.data.version == 2
+        && isWholeNumberUpTo(request.resource.data.best_score, 1000000000)
+        && isWholeNumberUpTo(request.resource.data.coins, 1000000000)
+        && request.resource.data.owned is list
+        && request.resource.data.owned.size() <= 20;
+    }
+  }
+}
