@@ -1,7 +1,7 @@
 extends GutTest
 
 const TEST_PATH := "user://test_runner_save.json"
-const TMP_PATH := TEST_PATH + JsonProgressRepository.TMP_SUFFIX
+const TMP_PATH := TEST_PATH + JsonFile.TMP_SUFFIX
 
 var repository: JsonProgressRepository
 

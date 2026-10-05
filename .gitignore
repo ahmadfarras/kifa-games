@@ -29,6 +29,7 @@ MIGRATION.md
 # Firebase CLI cache and logs
 .firebase/
 firebase-debug.log
+firestore-debug.log
 
 .vscode/
 docs/
