@@ -100,11 +100,11 @@ func test_invalid_numbers_load_zero() -> void:
 
 
 func test_max_values_are_accepted() -> void:
-	_write_file('{"version": 2, "best_score": %d, "coins": %d}' % [JsonProgressRepository.MAX_SCORE, Progress.MAX_COINS])
+	_write_file('{"version": 2, "best_score": %d, "coins": %d}' % [ProgressCodec.MAX_SCORE, Progress.MAX_COINS])
 
 	var loaded := repository.load_progress()
 
-	assert_eq(loaded.best_score, JsonProgressRepository.MAX_SCORE)
+	assert_eq(loaded.best_score, ProgressCodec.MAX_SCORE)
 	assert_eq(loaded.coins, Progress.MAX_COINS)
 
 

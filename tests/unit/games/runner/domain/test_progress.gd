@@ -164,3 +164,102 @@ func test_restore_clamps_numbers() -> void:
 	progress = Progress.restore(0, -1, [])
 
 	assert_eq(progress.coins, 0)
+
+
+func test_lifetime_earned_counts_wallet_and_spent_coins() -> void:
+	progress = Progress.restore(0, 100, [&"cat"])
+
+	assert_eq(progress.lifetime_earned(), 100 + CharacterCatalog.price(&"cat"))
+
+
+func test_lifetime_earned_of_fresh_is_zero() -> void:
+	assert_eq(progress.lifetime_earned(), 0)
+
+
+func test_absorb_keeps_highest_best_score() -> void:
+	progress = Progress.restore(10, 0, [])
+
+	progress.absorb(Progress.restore(25, 0, []))
+	progress.absorb(Progress.restore(3, 0, []))
+
+	assert_eq(progress.best_score, 25)
+
+
+func test_absorb_unites_owned_characters() -> void:
+	progress.absorb(Progress.restore(0, 0, [&"cat"]))
+
+	assert_true(progress.owns(&"cat"))
+	_assert_invariants()
+
+
+func test_absorb_stale_device_does_not_get_the_character_for_free() -> void:
+	# Device A earned 600 and bought the cat; this device still has the 600 coins and no cat.
+	progress = Progress.restore(0, 600, [])
+
+	progress.absorb(Progress.restore(0, 100, [&"cat"]))
+
+	assert_true(progress.owns(&"cat"))
+	assert_eq(progress.coins, 100)
+
+
+func test_absorb_takes_higher_earnings_not_the_sum() -> void:
+	progress = Progress.restore(0, 300, [])
+
+	progress.absorb(Progress.restore(0, 200, []))
+
+	assert_eq(progress.coins, 300)
+
+
+func test_absorb_is_commutative() -> void:
+	var a := Progress.restore(40, 600, [])
+	var b := Progress.restore(7, 100, [&"cat"])
+	var a_copy := Progress.restore(40, 600, [])
+	var b_copy := Progress.restore(7, 100, [&"cat"])
+
+	a.absorb(b_copy)
+	b.absorb(a_copy)
+
+	assert_true(a.equals(b))
+
+
+func test_absorb_same_progress_again_changes_nothing() -> void:
+	progress = Progress.restore(40, 600, [])
+	var other := Progress.restore(7, 100, [&"cat"])
+	progress.absorb(other)
+
+	assert_false(progress.absorb(other))
+	assert_eq(progress.coins, 100)
+
+
+func test_absorb_reports_whether_it_changed() -> void:
+	assert_true(progress.absorb(Progress.restore(5, 0, [])), "best score")
+	assert_true(progress.absorb(Progress.restore(0, 9, [])), "coins")
+	assert_true(progress.absorb(Progress.restore(0, 0, [&"cat"])), "owned")
+	assert_false(progress.absorb(Progress.fresh()), "nothing new")
+
+
+func test_absorb_ignores_unknown_characters() -> void:
+	var other := Progress.fresh()
+	other.owned[&"dragon"] = true
+
+	progress.absorb(other)
+
+	assert_false(progress.owns(&"dragon"))
+	_assert_invariants()
+
+
+func test_absorb_never_exceeds_max_coins() -> void:
+	progress = Progress.restore(0, Progress.MAX_COINS, [])
+
+	progress.absorb(Progress.restore(0, Progress.MAX_COINS, [&"cat"]))
+
+	_assert_invariants()
+
+
+func test_equals_compares_score_coins_and_owned() -> void:
+	progress = Progress.restore(5, 9, [&"cat"])
+
+	assert_true(progress.equals(Progress.restore(5, 9, [&"cat"])))
+	assert_false(progress.equals(Progress.restore(6, 9, [&"cat"])), "best score")
+	assert_false(progress.equals(Progress.restore(5, 8, [&"cat"])), "coins")
+	assert_false(progress.equals(Progress.restore(5, 9, [])), "owned")
