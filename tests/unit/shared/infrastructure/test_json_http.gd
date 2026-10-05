@@ -80,6 +80,7 @@ func test_new_request_has_limits() -> void:
 	assert_eq(request.timeout, JsonHttp.TIMEOUT_SECONDS)
 	assert_eq(request.body_size_limit, JsonHttp.MAX_RESPONSE_BYTES)
 	assert_eq(request.max_redirects, 0)
+	assert_false(request.accept_gzip, "the Web export breaks on gzip answers otherwise")
 	request.free()
 
 

@@ -40,6 +40,8 @@ static func new_request() -> HTTPRequest:
 	request.timeout = TIMEOUT_SECONDS
 	request.body_size_limit = MAX_RESPONSE_BYTES
 	request.max_redirects = 0
+	# On Web the browser already unpacks gzip; unpacking again fails and the answer is lost.
+	request.accept_gzip = false
 	return request
 
 

@@ -171,3 +171,33 @@ func test_logged_in_purchase_and_runner_exit_sync() -> void:
 
 	assert_eq(services.cloud.pull_count, pulls + 1)
 	assert_true(_current() is Hub)
+
+
+func test_hub_shows_guest_or_the_logged_in_name() -> void:
+	assert_eq(_current().get_node("%AccountButton").text, Hub.GUEST_ACCOUNT_TEXT)
+	main.free()
+	_start(true)
+
+	assert_string_contains(_current().get_node("%AccountButton").text, FakeServices.USERNAME)
+
+
+func test_account_button_opens_the_account_screen_and_back_returns() -> void:
+	(_current() as Hub).account_requested.emit()
+
+	var screen := _current() as AccountScreen
+	assert_not_null(screen)
+	screen.exit_requested.emit()
+	assert_true(_current() is Hub)
+
+
+func test_logging_out_on_the_account_screen_resets_the_device() -> void:
+	main.free()
+	_start(true)
+	services.repository.stored = Progress.restore(12, 30, [&"cat"])
+	(_current() as Hub).account_requested.emit()
+
+	(_current().get_node("%LogOutButton") as Button).pressed.emit()
+
+	assert_false(services.account.is_signed_in())
+	assert_true(services.repository.stored.equals(Progress.fresh()))
+	assert_true(services.cloud.remote.owns(&"cat"), "saved to the cloud before the reset")

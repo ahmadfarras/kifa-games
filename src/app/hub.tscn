@@ -29,6 +29,20 @@ shadow_offset = Vector2(0, 9)
 
 [sub_resource type="StyleBoxEmpty" id="no_focus"]
 
+[sub_resource type="StyleBoxFlat" id="account_pill"]
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 32
+corner_radius_top_right = 32
+corner_radius_bottom_right = 32
+corner_radius_bottom_left = 32
+shadow_color = Color(0, 0, 0, 0.12)
+shadow_size = 1
+shadow_offset = Vector2(0, 5)
+
 [node name="Hub" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -217,3 +231,24 @@ theme_override_colors/font_color = Color(1, 0.624, 0.11, 1)
 theme_override_font_sizes/font_size = 28
 text = "Run Run!"
 horizontal_alignment = 1
+
+[node name="AccountButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -324.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 88.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_hover_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_colors/font_pressed_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 26
+theme_override_styles/focus = SubResource("no_focus")
+theme_override_styles/normal = SubResource("account_pill")
+theme_override_styles/hover = SubResource("account_pill")
+theme_override_styles/pressed = SubResource("account_pill")
+text = "⭐ Save my stars"

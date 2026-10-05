@@ -9,6 +9,7 @@ const RUNNER_GAME_SCENE := "res://src/games/runner/presentation/runner_game.tscn
 const MATCH_GAME_SCENE := "res://src/games/match/presentation/match_game.tscn"
 const MATH_GAME_SCENE := "res://src/games/math/presentation/math_game.tscn"
 const COLORING_GAME_SCENE := "res://src/games/coloring/presentation/coloring_game.tscn"
+const ACCOUNT_SCENE := "res://src/account/presentation/account_screen.tscn"
 ## Only the emoji the UI uses (see tools/subset_emoji_font.py).
 const EMOJI_FONT := "res://assets/shared/fonts/noto_color_emoji_subset.ttf"
 
@@ -46,7 +47,21 @@ static func use_bundled_emoji() -> void:
 func show_hub() -> void:
 	var hub: Hub = load(HUB_SCENE).instantiate()
 	hub.game_chosen.connect(_on_game_chosen)
+	hub.account_requested.connect(show_account)
 	_switch_to(hub)
+	hub.show_account(_account.username())
+
+
+func show_account() -> void:
+	var screen: AccountScreen = load(ACCOUNT_SCENE).instantiate()
+	screen.setup(_account, _log_out, _cloud_saves.delete_account, _new_rng())
+	screen.exit_requested.connect(show_hub)
+	_switch_to(screen)
+
+
+## True when logged out (the account screen warns and asks again when it is not).
+func _log_out(discard_unsaved: bool) -> bool:
+	return await _cloud_saves.log_out(discard_unsaved) == ProgressCloud.Result.OK
 
 
 func _on_game_chosen(game: StringName) -> void:
