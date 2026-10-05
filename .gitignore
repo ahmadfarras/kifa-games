@@ -5,7 +5,8 @@ export.cfg
 *.translation
 
 # Exported builds
-/build/
+/build/*
+!/build/.gdignore
 /export/
 
 # Credentials / secrets
@@ -25,8 +26,9 @@ keystore.jks
 
 MIGRATION.md
 
-# Firebase CLI cache
+# Firebase CLI cache and logs
 .firebase/
+firebase-debug.log
 
 .vscode/
 docs/
