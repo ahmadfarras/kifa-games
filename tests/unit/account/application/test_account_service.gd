@@ -74,16 +74,24 @@ func test_register_rejects_weak_password_without_calling_the_server() -> void:
 	assert_eq(gateway.calls, 0)
 
 
-func test_register_rejects_a_username_that_was_not_generated() -> void:
-	assert_eq(await service.register("Budi", PASSWORD), AuthGateway.Status.UNKNOWN)
+func test_register_rejects_a_username_that_is_not_allowed() -> void:
+	for typed in ["ab", "Budi Santoso", "budi@mail.com", "a".repeat(Username.MAX_LENGTH + 1)]:
+		assert_eq(await service.register(typed, PASSWORD), AuthGateway.Status.INVALID_USERNAME, typed)
 	assert_eq(gateway.calls, 0)
+
+
+func test_register_keeps_the_name_as_typed_without_spaces() -> void:
+	assert_eq(await service.register(" Budi7 ", PASSWORD), AuthGateway.Status.OK)
+	assert_eq(service.username(), "Budi7")
+	assert_true(gateway.passwords.has("budi7"), "one account whatever the capitals")
 
 
 func test_log_in_with_typed_lower_case_username() -> void:
 	gateway.passwords["happycat27"] = PASSWORD
 
 	assert_eq(await service.log_in(" happycat27 ", PASSWORD), AuthGateway.Status.OK)
-	assert_eq(service.username(), NAME)
+	assert_eq(service.username(), "happycat27", "shown as typed; it is the same account")
+	assert_eq(service.uid(), "uidhappycat27")
 
 
 func test_log_in_wrong_password() -> void:
@@ -94,7 +102,7 @@ func test_log_in_wrong_password() -> void:
 
 
 func test_log_in_refuses_impossible_input_without_calling_the_server() -> void:
-	for attempt: Array in [["Budi", PASSWORD], ["' OR 1=1 --", PASSWORD], [NAME, "short"], ["", ""]]:
+	for attempt: Array in [["a b", PASSWORD], ["' OR 1=1 --", PASSWORD], [NAME, "short"], ["", ""]]:
 		assert_eq(await service.log_in(attempt[0], attempt[1]), AuthGateway.Status.WRONG_CREDENTIALS)
 	assert_eq(gateway.calls, 0)
 

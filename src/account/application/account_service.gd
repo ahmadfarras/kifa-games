@@ -41,7 +41,7 @@ func uid() -> String:
 func register(username_text: String, password: String) -> AuthGateway.Status:
 	var name := Username.canonical(username_text)
 	if name.is_empty():
-		return AuthGateway.Status.UNKNOWN
+		return AuthGateway.Status.INVALID_USERNAME
 	if not Password.is_valid(password):
 		return AuthGateway.Status.WEAK_PASSWORD
 	return _start_session(name, await _gateway.sign_up(name, password))

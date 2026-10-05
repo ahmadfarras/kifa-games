@@ -1,64 +1,31 @@
 extends GutTest
 
-var rng: RandomNumberGenerator
+
+func test_accepts_letters_and_digits_within_the_length() -> void:
+	for typed in ["abc", "Budi", "budi7", "HappyCat27", "007", "a".repeat(Username.MAX_LENGTH)]:
+		assert_eq(Username.canonical(typed), typed, typed)
+		assert_true(Username.is_valid(typed), typed)
 
 
-func before_each() -> void:
-	rng = RandomNumberGenerator.new()
-	rng.seed = 7
+func test_canonical_removes_surrounding_spaces_and_keeps_the_case() -> void:
+	assert_eq(Username.canonical("  Budi7 \n"), "Budi7")
 
 
-func test_word_lists_have_no_duplicates() -> void:
-	for words: Array[String] in [UsernameWords.ADJECTIVES, UsernameWords.ANIMALS]:
-		var seen: Dictionary[String, bool] = {}
-		for word in words:
-			assert_false(seen.has(word.to_lower()), word)
-			seen[word.to_lower()] = true
+func test_rejects_wrong_lengths() -> void:
+	for typed in ["", "  ", "a", "ab", "a".repeat(Username.MAX_LENGTH + 1)]:
+		assert_eq(Username.canonical(typed), "", typed)
+		assert_false(Username.is_valid(typed), typed)
 
 
-func test_words_are_letters_starting_with_a_capital() -> void:
-	var pattern := RegEx.create_from_string("^[A-Z][a-z]+$")
-	for word: String in UsernameWords.ADJECTIVES + UsernameWords.ANIMALS:
-		assert_not_null(pattern.search(word), word)
-
-
-func test_generate_is_always_valid_and_canonical() -> void:
-	for i in 200:
-		var username := Username.generate(rng)
-
-		assert_eq(Username.canonical(username), username)
-
-
-func test_generate_is_deterministic_for_a_seed() -> void:
-	var other := RandomNumberGenerator.new()
-	other.seed = 7
-
-	assert_eq(Username.generate(rng), Username.generate(other))
-
-
-func test_generate_pads_the_number_to_two_digits() -> void:
-	for i in 200:
-		assert_eq(Username.generate(rng).right(2).length(), 2)
-		assert_true(Username.generate(rng).right(2).is_valid_int())
-
-
-func test_canonical_ignores_case_and_surrounding_spaces() -> void:
-	for typed in ["happycat27", "HAPPYCAT27", "  HappyCat27 ", "hAPPYcAT27"]:
-		assert_eq(Username.canonical(typed), "HappyCat27", typed)
-
-
-func test_canonical_keeps_leading_zero() -> void:
-	assert_eq(Username.canonical("sunnyowl07"), "SunnyOwl07")
-
-
-func test_canonical_rejects_everything_else() -> void:
+func test_rejects_anything_but_plain_letters_and_digits() -> void:
 	for typed in [
-		"", "27", "HappyCat", "HappyCat7", "HappyCat277", "HappyCat-7", "HappyCat+7", "Happy Cat27",
-		"CatHappy27", "HappyDragon27", "Budi27", "HappyCat27@evil.com", "HappyCat२७", "../../etc27",
+		"Budi Santoso", "budi_7", "budi-7", "budi.7", "budi@mail.com", "budi+7", "bu/di", "../../etc",
+		"' OR 1=1 --", "<b>budi</b>", "budi\n7", "büdi", "буди", "ブディ", "budi२७", "budi😀",
 	]:
 		assert_eq(Username.canonical(typed), "", typed)
 		assert_false(Username.is_valid(typed), typed)
 
 
-func test_is_valid_accepts_a_generated_name() -> void:
-	assert_true(Username.is_valid("BraveTiger00"))
+func test_limits() -> void:
+	assert_eq(Username.MIN_LENGTH, 3)
+	assert_eq(Username.MAX_LENGTH, 16)

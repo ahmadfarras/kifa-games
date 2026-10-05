@@ -35,6 +35,22 @@ corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
+[sub_resource type="StyleBoxFlat" id="field_focus"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.953, 0.961, 0.973, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.42, 0.616, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
 [node name="AccountScreen" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -136,40 +152,35 @@ layout_mode = 2
 theme_override_constants/separation = 14
 alignment = 1
 
-[node name="NameRow" type="HBoxContainer" parent="Center/Card/Layout/CreatePage"]
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
-
-[node name="NewName" type="Label" parent="Center/Card/Layout/CreatePage/NameRow"]
+[node name="NewName" type="LineEdit" parent="Center/Card/Layout/CreatePage"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
-theme_override_font_sizes/font_size = 40
-text = "HappyCat27"
-
-[node name="ShuffleButton" type="Button" parent="Center/Card/Layout/CreatePage/NameRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-theme_override_styles/focus = ExtResource("5_no_focus")
-theme_override_styles/normal = ExtResource("4_round")
-theme_override_styles/hover = ExtResource("4_round")
-theme_override_styles/pressed = ExtResource("4_round")
-text = "🎲"
+theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/caret_color = Color(1, 0.42, 0.616, 1)
+theme_override_constants/caret_width = 4
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("field_focus")
+theme_override_styles/normal = SubResource("field")
+placeholder_text = "Nickname"
+max_length = 16
+context_menu_enabled = false
+caret_blink = true
 
 [node name="NewPassword" type="LineEdit" parent="Center/Card/Layout/CreatePage"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/caret_color = Color(1, 0.42, 0.616, 1)
+theme_override_constants/caret_width = 4
 theme_override_font_sizes/font_size = 30
-theme_override_styles/focus = SubResource("field")
+theme_override_styles/focus = SubResource("field_focus")
 theme_override_styles/normal = SubResource("field")
 placeholder_text = "Password (8 letters or more)"
 max_length = 64
 context_menu_enabled = false
+caret_blink = true
 secret = true
 
 [node name="CreateButton" type="Button" parent="Center/Card/Layout/CreatePage"]
@@ -197,24 +208,30 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/caret_color = Color(1, 0.42, 0.616, 1)
+theme_override_constants/caret_width = 4
 theme_override_font_sizes/font_size = 30
-theme_override_styles/focus = SubResource("field")
+theme_override_styles/focus = SubResource("field_focus")
 theme_override_styles/normal = SubResource("field")
-placeholder_text = "Name, like HappyCat27"
+placeholder_text = "Name"
 max_length = 32
 context_menu_enabled = false
+caret_blink = true
 
 [node name="LoginPassword" type="LineEdit" parent="Center/Card/Layout/LoginPage"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/caret_color = Color(1, 0.42, 0.616, 1)
+theme_override_constants/caret_width = 4
 theme_override_font_sizes/font_size = 30
-theme_override_styles/focus = SubResource("field")
+theme_override_styles/focus = SubResource("field_focus")
 theme_override_styles/normal = SubResource("field")
 placeholder_text = "Password"
 max_length = 64
 context_menu_enabled = false
+caret_blink = true
 secret = true
 
 [node name="LoginButton" type="Button" parent="Center/Card/Layout/LoginPage"]
@@ -303,12 +320,15 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_colors/font_placeholder_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_colors/caret_color = Color(1, 0.42, 0.616, 1)
+theme_override_constants/caret_width = 4
 theme_override_font_sizes/font_size = 30
-theme_override_styles/focus = SubResource("field")
+theme_override_styles/focus = SubResource("field_focus")
 theme_override_styles/normal = SubResource("field")
 placeholder_text = "Password"
 max_length = 64
 context_menu_enabled = false
+caret_blink = true
 secret = true
 
 [node name="Buttons" type="HBoxContainer" parent="Center/Card/Layout/ConfirmPage"]

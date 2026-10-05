@@ -56,12 +56,12 @@ func test_saves_plain_json_without_a_password() -> void:
 	})
 
 
-func test_username_is_stored_back_in_its_written_form() -> void:
+func test_username_loads_without_surrounding_spaces() -> void:
 	var data := _valid()
-	data.username = "happycat27"
+	data.username = " happycat27 "
 	_write(data)
 
-	assert_eq(store.load_session().username, "HappyCat27")
+	assert_eq(store.load_session().username, "happycat27")
 
 
 func test_clear_removes_the_session() -> void:
@@ -83,7 +83,7 @@ func test_tampered_files_are_guest() -> void:
 	var bad_values: Dictionary[String, Array] = {
 		"version": [2, "1", null],
 		"uid": ["", "../../other", "a/b", 5, null],
-		"username": ["Budi", "", 5, null, "HappyCat27@evil.com"],
+		"username": ["a b", "", 5, null, "HappyCat27@evil.com", "a".repeat(17)],
 		"refresh_token": ["", 5, null, "a".repeat(FirebaseAuthGateway.MAX_TOKEN_LENGTH + 1)],
 	}
 	for key: String in bad_values:

@@ -78,37 +78,42 @@ func test_create_needs_the_parental_gate() -> void:
 	assert_eq(_visible_page(), AccountScreen.Page.GATE)
 	_pass_gate()
 	assert_eq(_visible_page(), AccountScreen.Page.CREATE)
-	assert_true(Username.is_valid(_text("NewName")))
+	assert_eq(_text("NewName"), "")
+	assert_eq(_text("Message"), AccountScreen.CREATE_HINT, "nudges away from a real name")
 
 
-func test_shuffle_gives_another_valid_name() -> void:
+func test_create_registers_the_typed_name_and_shows_the_account_card() -> void:
 	_go_to_create()
-	var first := _text("NewName")
-
-	_press("ShuffleButton")
-
-	assert_ne(_text("NewName"), first)
-	assert_true(Username.is_valid(_text("NewName")))
-
-
-func test_create_registers_and_shows_the_account_card() -> void:
-	_go_to_create()
-	var username := _text("NewName")
+	_type("NewName", "Budi7")
 	_type("NewPassword", "password1")
 
 	_press("CreateButton")
 
-	assert_eq(services.account.username(), username)
+	assert_eq(services.account.username(), "Budi7")
 	assert_eq(_visible_page(), AccountScreen.Page.CARD)
-	assert_eq(_text("CardName"), username)
+	assert_eq(_text("CardName"), "Budi7")
 	assert_eq(_text("Message"), AccountScreen.CARD_MESSAGE)
 	assert_eq(_text("NewPassword"), "", "the typed password is cleared")
 	_press("CardOkButton")
 	assert_eq(_visible_page(), AccountScreen.Page.ACCOUNT)
 
 
+func test_create_with_a_name_that_is_not_allowed_explains_and_sends_nothing() -> void:
+	_go_to_create()
+	_type("NewName", "Budi Santoso")
+	_type("NewPassword", "password1")
+
+	_press("CreateButton")
+
+	assert_eq(_visible_page(), AccountScreen.Page.CREATE)
+	assert_eq(_text("Message"), AccountScreen.MESSAGES[AuthGateway.Status.INVALID_USERNAME])
+	assert_eq(_text("NewName"), "Budi Santoso", "kept so it can be corrected")
+	assert_eq(services.gateway.calls, 0)
+
+
 func test_create_with_short_password_explains_and_sends_nothing() -> void:
 	_go_to_create()
+	_type("NewName", "Budi7")
 	_type("NewPassword", "short")
 
 	_press("CreateButton")
@@ -118,18 +123,27 @@ func test_create_with_short_password_explains_and_sends_nothing() -> void:
 	assert_eq(services.gateway.calls, 0)
 
 
-func test_create_with_taken_name_offers_a_new_one() -> void:
+func test_create_with_taken_name_asks_for_another() -> void:
+	services.gateway.passwords["budi7"] = "someone else"
 	_go_to_create()
-	var taken := _text("NewName")
-	services.gateway.passwords[taken.to_lower()] = "someone else"
+	_type("NewName", "BUDI7")
 	_type("NewPassword", "password1")
 
 	_press("CreateButton")
 
 	assert_eq(_visible_page(), AccountScreen.Page.CREATE)
-	assert_ne(_text("NewName"), taken)
 	assert_eq(_text("Message"), AccountScreen.MESSAGES[AuthGateway.Status.USERNAME_TAKEN])
 	assert_false(services.account.is_signed_in())
+
+
+func test_create_page_starts_empty_every_time() -> void:
+	_go_to_create()
+	_type("NewName", "Budi7")
+	_press("BackButton")
+
+	_go_to_create()
+
+	assert_eq(_text("NewName"), "")
 
 
 func test_log_in_shows_the_account_page() -> void:
@@ -141,7 +155,7 @@ func test_log_in_shows_the_account_page() -> void:
 	_press("LoginButton")
 
 	assert_eq(_visible_page(), AccountScreen.Page.ACCOUNT)
-	assert_eq(_text("Title"), "HappyCat27")
+	assert_eq(_text("Title"), "happycat27")
 
 
 func test_failed_log_in_shows_a_kid_safe_message_for_every_status() -> void:
@@ -174,6 +188,36 @@ func test_show_password_reveals_the_password_fields() -> void:
 	assert_false(field.secret)
 	toggle.button_pressed = false
 	assert_true(field.secret)
+
+
+func test_caret_is_forced_only_for_the_focused_field() -> void:
+	_press("LoginChoiceButton")
+	var name_field: LineEdit = screen.get_node("%LoginName")
+	var password_field: LineEdit = screen.get_node("%LoginPassword")
+
+	name_field.grab_focus()
+	assert_true(name_field.caret_force_displayed, "stays visible while the phone keyboard is open")
+	assert_false(password_field.caret_force_displayed)
+	password_field.grab_focus()
+
+	assert_false(name_field.caret_force_displayed)
+	assert_true(password_field.caret_force_displayed)
+
+
+func test_name_fields_are_capped() -> void:
+	for field in ["NewName", "LoginName"]:
+		assert_eq((screen.get_node("%" + field) as LineEdit).max_length, Username.MAX_LENGTH, field)
+
+
+func test_text_fields_show_a_visible_blinking_caret() -> void:
+	for field in ["NewName", "NewPassword", "LoginName", "LoginPassword", "ConfirmPassword"]:
+		var line: LineEdit = screen.get_node("%" + field)
+		var caret := line.get_theme_color("caret_color")
+		var background: Color = (line.get_theme_stylebox("normal") as StyleBoxFlat).bg_color
+
+		assert_true(line.caret_blink, field)
+		assert_gt(absf(caret.get_luminance() - background.get_luminance()), 0.3, field + " caret stands out")
+		assert_gte(line.get_theme_constant("caret_width"), 3, field)
 
 
 func test_password_fields_are_capped() -> void:

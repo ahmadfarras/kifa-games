@@ -2,7 +2,8 @@ class_name FirebaseAuthGateway
 extends AuthGateway
 
 ## Accounts on Firebase Authentication, over its REST API. Firebase wants an email-shaped id, so the
-## username "HappyCat27" is sent as "happycat27@kifa-games.invalid": never shown, never mailed.
+## username "Budi7" is sent as "budi7@kifa-games.invalid": never shown, never mailed. Lower case, so
+## "budi7" and "Budi7" are the same account.
 ## Firebase hashes the password and limits repeated attempts; the game only passes it on over HTTPS.
 
 const AUTH_DOMAIN := "kifa-games.invalid"

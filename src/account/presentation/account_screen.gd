@@ -21,7 +21,8 @@ const TITLES: Dictionary[Page, String] = {
 	Page.CONFIRM: "Are you sure?",
 }
 const MESSAGES: Dictionary[AuthGateway.Status, String] = {
-	AuthGateway.Status.USERNAME_TAKEN: "That name was taken. Here is a new one!",
+	AuthGateway.Status.INVALID_USERNAME: "Use 3 to 16 letters or numbers for the name.",
+	AuthGateway.Status.USERNAME_TAKEN: "That name is taken. Try another one.",
 	AuthGateway.Status.WRONG_CREDENTIALS: "Name or password is wrong.",
 	AuthGateway.Status.WEAK_PASSWORD: "Use a password with 8 letters or more.",
 	AuthGateway.Status.TOO_MANY_ATTEMPTS: "Too many tries. Wait a little.",
@@ -29,6 +30,7 @@ const MESSAGES: Dictionary[AuthGateway.Status, String] = {
 	AuthGateway.Status.SESSION_EXPIRED: "Please log in again.",
 	AuthGateway.Status.UNKNOWN: "Something went wrong. Try again.",
 }
+const CREATE_HINT := "Pick a nickname, not your real name."
 const CARD_MESSAGE := "Write down this name and your password.\nA lost password cannot be recovered."
 const UNSAVED_MESSAGE := "Your newest stars and coins are not saved yet.\nLog out anyway?"
 const DELETE_MESSAGE := "This deletes the account and everything saved in it.\nType the password to delete it."
@@ -47,7 +49,7 @@ var _after_gate := Page.CREATE
 @onready var _title: Label = %Title
 @onready var _message: Label = %Message
 @onready var _gate: ParentGate = %Gate
-@onready var _new_name: Label = %NewName
+@onready var _new_name: LineEdit = %NewName
 @onready var _new_password: LineEdit = %NewPassword
 @onready var _login_name: LineEdit = %LoginName
 @onready var _login_password: LineEdit = %LoginPassword
@@ -73,13 +75,19 @@ func setup(
 func _ready() -> void:
 	_gate.setup(_rng)
 	_gate.passed.connect(_on_gate_passed)
+	# On phones the browser moves its focus to a hidden text box while the on-screen keyboard is open,
+	# and Godot then stops drawing the caret. Forcing it for the focused field keeps it visible.
+	for field: LineEdit in [_new_name, _new_password, _login_name, _login_password, _confirm_password]:
+		field.focus_entered.connect(field.set_caret_force_displayed.bind(true))
+		field.focus_exited.connect(field.set_caret_force_displayed.bind(false))
+	_new_name.max_length = Username.MAX_LENGTH
+	_login_name.max_length = Username.MAX_LENGTH
 	_new_password.max_length = Password.MAX_LENGTH
 	_login_password.max_length = Password.MAX_LENGTH
 	_confirm_password.max_length = Password.MAX_LENGTH
 	%BackButton.pressed.connect(_on_back_pressed)
 	%LoginChoiceButton.pressed.connect(_show.bind(Page.LOGIN))
 	%CreateChoiceButton.pressed.connect(_ask_gate.bind(Page.CREATE))
-	%ShuffleButton.pressed.connect(_shuffle_name)
 	%CreateButton.pressed.connect(_on_create_pressed)
 	%LoginButton.pressed.connect(_on_login_pressed)
 	%CardOkButton.pressed.connect(_show.bind(Page.ACCOUNT))
@@ -117,8 +125,8 @@ func _ask_gate(next: Page) -> void:
 
 func _on_gate_passed() -> void:
 	if _after_gate == Page.CREATE:
-		_shuffle_name()
-		_show(Page.CREATE)
+		_new_name.clear()
+		_show(Page.CREATE, CREATE_HINT)
 	else:
 		_ask_confirm(Confirm.DELETE, DELETE_MESSAGE)
 
@@ -129,20 +137,16 @@ func _ask_confirm(confirm: Confirm, message: String) -> void:
 	_show(Page.CONFIRM, message)
 
 
-func _shuffle_name() -> void:
-	_new_name.text = Username.generate(_rng)
-
-
 func _on_create_pressed() -> void:
-	var username := _new_name.text
-	var status: AuthGateway.Status = await _busy_while(_account.register.bind(username, _new_password.text))
+	var status: AuthGateway.Status = await _busy_while(
+		_account.register.bind(_new_name.text, _new_password.text)
+	)
 	if status == AuthGateway.Status.OK:
-		_card_name.text = username
+		_card_name.text = _account.username()
 		_show(Page.CARD, CARD_MESSAGE)
-		return
-	if status == AuthGateway.Status.USERNAME_TAKEN:
-		_shuffle_name()
-	_show(Page.CREATE, MESSAGES[status])
+	else:
+		# The typed name stays so it can be corrected; the password is cleared like on every page change.
+		_show(Page.CREATE, MESSAGES[status])
 
 
 func _on_login_pressed() -> void:
