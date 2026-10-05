@@ -13,11 +13,25 @@ const COLORING_GAME_SCENE := "res://src/games/coloring/presentation/coloring_gam
 const EMOJI_FONT := "res://assets/shared/fonts/noto_color_emoji_subset.ttf"
 
 var _current: Node
+var _account: AccountService
+var _repository: ProgressRepository
+var _cloud_saves: CloudSaves
+
+
+## Optional, before the node enters the tree: tests pass in-memory services so nothing touches the
+## network or the real save files. Without it _ready() builds the real ones.
+func setup(account: AccountService, repository: ProgressRepository, cloud_saves: CloudSaves) -> void:
+	_account = account
+	_repository = repository
+	_cloud_saves = cloud_saves
 
 
 func _ready() -> void:
 	use_bundled_emoji()
+	if _cloud_saves == null:
+		_build_services()
 	show_hub()
+	_cloud_saves.sync_device()
 
 
 ## Browsers give Godot no system emoji font, so emoji glyphs come from a bundled font that every
@@ -49,11 +63,17 @@ func _on_game_chosen(game: StringName) -> void:
 
 func _build_runner() -> RunnerGame:
 	var rng := _new_rng()
-	var session := RunnerSession.new(JsonProgressRepository.new(), rng)
+	var session := RunnerSession.new(_repository, rng)
+	_cloud_saves.watch(session)
 	var game: RunnerGame = load(RUNNER_GAME_SCENE).instantiate()
 	game.setup(session, rng)
-	game.exit_requested.connect(show_hub)
+	game.exit_requested.connect(_on_runner_exit)
 	return game
+
+
+func _on_runner_exit() -> void:
+	_cloud_saves.unwatch()
+	show_hub()
 
 
 func _build_match() -> MatchGame:
@@ -75,6 +95,26 @@ func _build_coloring() -> ColoringGame:
 	game.setup(ColoringSession.new(_new_rng()))
 	game.exit_requested.connect(show_hub)
 	return game
+
+
+## Accounts and cloud saves, built once: one HTTP node for logging in and one for cloud saves, so a
+## cloud save request can wait for a login token without blocking itself.
+func _build_services() -> void:
+	var clock := Time.get_unix_time_from_system
+	var gateway := FirebaseAuthGateway.new(_new_http(), FirebaseConfig.API_KEY)
+	_account = AccountService.new(gateway, JsonAccountStore.new(), clock)
+	_repository = JsonProgressRepository.new()
+	var documents := FirestoreDocuments.new(
+		_new_http(), FirebaseConfig.PROJECT_ID, _account.id_token, _account.uid
+	)
+	var sync := ProgressSync.new(_repository, FirestoreProgressCloud.new(documents))
+	_cloud_saves = CloudSaves.new(_account, _repository, sync, documents, clock)
+
+
+func _new_http() -> JsonHttp:
+	var request := JsonHttp.new_request()
+	add_child(request)
+	return JsonHttp.new(request)
 
 
 func _switch_to(scene: Node) -> void:

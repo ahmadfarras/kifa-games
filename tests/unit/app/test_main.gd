@@ -1,12 +1,21 @@
 extends GutTest
 
 const MainScene := preload("res://src/app/main.tscn")
+const FakeServices := preload("res://tests/unit/app/fake_services.gd")
 
 var main: Node
+var services: FakeServices
 
 
 func before_each() -> void:
+	_start(false)
+
+
+## Starts the app on in-memory services, so no test touches the network or the real save files.
+func _start(signed_in: bool) -> void:
+	services = FakeServices.new(signed_in)
 	main = MainScene.instantiate()
+	main.setup(services.account, services.repository, services.cloud_saves)
 	add_child_autofree(main)
 
 
@@ -111,3 +120,54 @@ func test_unknown_game_keeps_hub() -> void:
 	(hub as Hub).game_chosen.emit(&"unknown")
 
 	assert_eq(_current(), hub)
+
+
+func test_builds_real_services_when_none_are_given() -> void:
+	var app: Node = MainScene.instantiate()
+
+	app._build_services()
+
+	var requests := app.get_children().filter(func(child: Node) -> bool: return child is HTTPRequest)
+	assert_eq(requests.size(), 2, "one for logging in, one for cloud saves")
+	for request: HTTPRequest in requests:
+		assert_eq(request.timeout, JsonHttp.TIMEOUT_SECONDS)
+	assert_not_null(app._account)
+	assert_not_null(app._cloud_saves)
+	app.free()
+
+
+func test_guest_start_makes_no_cloud_calls() -> void:
+	assert_eq(services.cloud.pull_count, 0)
+	assert_eq(services.gateway.calls, 0)
+
+
+func test_logged_in_start_syncs_the_device() -> void:
+	main.free()
+	_start(true)
+
+	assert_eq(services.cloud.pull_count, 1)
+
+
+func test_runner_plays_with_the_shared_progress() -> void:
+	services.repository.stored = Progress.restore(0, 600, [])
+	(_current() as Hub).game_chosen.emit(Hub.RUNNER)
+
+	(_current() as RunnerGame)._session.buy(&"cat")
+
+	assert_true(services.repository.stored.owns(&"cat"))
+
+
+func test_logged_in_purchase_and_runner_exit_sync() -> void:
+	main.free()
+	_start(true)
+	services.repository.stored = Progress.restore(0, 600, [])
+	(_current() as Hub).game_chosen.emit(Hub.RUNNER)
+	var game := _current() as RunnerGame
+
+	game._session.buy(&"cat")
+	assert_true(services.cloud.remote.owns(&"cat"))
+	var pulls := services.cloud.pull_count
+	game.exit_requested.emit()
+
+	assert_eq(services.cloud.pull_count, pulls + 1)
+	assert_true(_current() is Hub)

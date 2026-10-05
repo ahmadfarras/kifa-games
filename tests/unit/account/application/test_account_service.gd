@@ -36,13 +36,13 @@ func test_starts_as_guest() -> void:
 
 
 func test_restores_a_stored_session() -> void:
-	store.stored = AccountSession.new("uid-happycat27", NAME, "refresh-happycat27-1")
+	store.stored = AccountSession.new("uidhappycat27", NAME, "refresh-happycat27-1")
 
 	service = AccountService.new(gateway, store, _clock)
 
 	assert_true(service.is_signed_in())
 	assert_eq(service.username(), NAME)
-	assert_eq(service.uid(), "uid-happycat27")
+	assert_eq(service.uid(), "uidhappycat27")
 
 
 func test_register_signs_in_and_stores_the_session() -> void:
@@ -54,7 +54,7 @@ func test_register_signs_in_and_stores_the_session() -> void:
 	assert_true(service.is_signed_in())
 	assert_eq(service.username(), NAME)
 	assert_eq(store.stored.username, NAME)
-	assert_eq(store.stored.uid, "uid-happycat27")
+	assert_eq(store.stored.uid, "uidhappycat27")
 	assert_signal_emitted_with_parameters(service, "signed_in", [NAME])
 
 
@@ -148,7 +148,7 @@ func test_id_token_refreshes_near_expiry_and_stores_the_new_refresh_token() -> v
 
 
 func test_restored_session_refreshes_on_first_use() -> void:
-	store.stored = AccountSession.new("uid-happycat27", NAME, "refresh-happycat27-1")
+	store.stored = AccountSession.new("uidhappycat27", NAME, "refresh-happycat27-1")
 	service = AccountService.new(gateway, store, _clock)
 
 	assert_eq(await service.id_token(), "id-1")

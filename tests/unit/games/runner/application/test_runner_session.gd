@@ -183,3 +183,12 @@ func test_buy_failures_do_not_save() -> void:
 	assert_eq(session.buy(&"dragon"), Progress.Purchase.UNKNOWN_CHARACTER)
 	assert_eq(repository.save_count, 0)
 	assert_signal_not_emitted(session, "progress_changed")
+
+
+func test_refresh_from_sync_asks_for_a_redraw() -> void:
+	watch_signals(session)
+
+	session.refresh_from_sync()
+
+	assert_signal_emitted(session, "progress_changed")
+	assert_eq(repository.save_count, 0)

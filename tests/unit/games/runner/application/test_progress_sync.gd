@@ -110,3 +110,15 @@ func test_second_sync_waits_for_the_first() -> void:
 
 	assert_eq(cloud.pull_count, 2)
 	assert_eq(cloud.push_count, 1, "second sync finds the cloud up to date")
+
+
+func test_emits_merged_only_when_the_device_progress_changed() -> void:
+	watch_signals(sync)
+	var progress := Progress.restore(5, 9, [])
+
+	await sync.sync(progress)
+	assert_signal_not_emitted(sync, "merged")
+	cloud.remote = Progress.restore(40, 9, [])
+	await sync.sync(progress)
+
+	assert_signal_emit_count(sync, "merged", 1)

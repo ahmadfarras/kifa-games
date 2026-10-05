@@ -49,7 +49,7 @@ func delete_account(id_token: String) -> Status:
 func _issue(username: String) -> Tokens:
 	_issued += 1
 	var tokens := Tokens.new(Status.OK)
-	tokens.uid = "uid-" + username.to_lower()
+	tokens.uid = "uid" + username.to_lower()
 	tokens.id_token = "id-%d" % _issued
 	tokens.refresh_token = "refresh-%s-%d" % [username.to_lower(), _issued]
 	tokens.expires_in = expires_in

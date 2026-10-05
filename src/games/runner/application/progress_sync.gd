@@ -6,6 +6,8 @@ extends RefCounted
 ## The device is always written first, so a failed sync never loses progress; the next sync catches up.
 
 signal finished(result: ProgressCloud.Result)
+## The cloud save changed the device's progress (it was already saved on the device).
+signal merged
 
 var _repository: ProgressRepository
 var _cloud: ProgressCloud
@@ -35,6 +37,7 @@ func _pull_merge_push(progress: Progress) -> ProgressCloud.Result:
 	if pull.progress != null:
 		if progress.absorb(pull.progress):
 			_repository.save_progress(progress)
+			merged.emit()
 		if progress.equals(pull.progress):
 			return ProgressCloud.Result.OK
 	return await _cloud.push(progress)
