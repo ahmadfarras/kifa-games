@@ -342,3 +342,30 @@ func test_buttons_are_blocked_while_a_request_is_running() -> void:
 	services.cloud.release()
 
 	assert_false(screen.get_node("%Blocker").visible)
+
+
+func test_privacy_is_reachable_for_guests_and_accounts_and_back_returns() -> void:
+	assert_true(screen.get_node("%PrivacyButton").visible)
+
+	_press("PrivacyButton")
+	assert_eq(_visible_page(), AccountScreen.Page.PRIVACY)
+	assert_false(screen.get_node("%PrivacyButton").visible)
+	_press("BackButton")
+
+	assert_eq(_visible_page(), AccountScreen.Page.GUEST)
+	screen.free()
+	_open(true)
+	assert_true(screen.get_node("%PrivacyButton").visible)
+
+
+func test_privacy_button_is_hidden_on_inner_pages() -> void:
+	_press("LoginChoiceButton")
+
+	assert_false(screen.get_node("%PrivacyButton").visible)
+
+
+func test_privacy_text_names_what_is_stored_and_how_to_delete_it() -> void:
+	var text := _text("PrivacyText")
+
+	for expected in ["nickname", "password", "progress", "Delete account", "no ads"]:
+		assert_string_contains(text, expected)

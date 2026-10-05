@@ -8,7 +8,7 @@ extends Control
 
 signal exit_requested
 
-enum Page { GUEST, GATE, CREATE, LOGIN, CARD, ACCOUNT, CONFIRM }
+enum Page { GUEST, GATE, CREATE, LOGIN, CARD, ACCOUNT, CONFIRM, PRIVACY }
 ## What the confirm page is asking for.
 enum Confirm { LOG_OUT_UNSAVED, DELETE }
 
@@ -19,6 +19,7 @@ const TITLES: Dictionary[Page, String] = {
 	Page.LOGIN: "Log in",
 	Page.CARD: "Write this down!",
 	Page.CONFIRM: "Are you sure?",
+	Page.PRIVACY: "Privacy",
 }
 const MESSAGES: Dictionary[AuthGateway.Status, String] = {
 	AuthGateway.Status.INVALID_USERNAME: "Use 3 to 16 letters or numbers for the name.",
@@ -56,10 +57,11 @@ var _after_gate := Page.CREATE
 @onready var _card_name: Label = %CardName
 @onready var _confirm_password: LineEdit = %ConfirmPassword
 @onready var _show_password: CheckBox = %ShowPassword
+@onready var _privacy_button: Button = %PrivacyButton
 @onready var _blocker: Control = %Blocker
 @onready var _pages: Dictionary[Page, Control] = {
 	Page.GUEST: %GuestPage, Page.GATE: %Gate, Page.CREATE: %CreatePage, Page.LOGIN: %LoginPage,
-	Page.CARD: %CardPage, Page.ACCOUNT: %AccountPage, Page.CONFIRM: %ConfirmPage,
+	Page.CARD: %CardPage, Page.ACCOUNT: %AccountPage, Page.CONFIRM: %ConfirmPage, Page.PRIVACY: %PrivacyPage,
 }
 
 
@@ -95,6 +97,7 @@ func _ready() -> void:
 	%DeleteButton.pressed.connect(_ask_gate.bind(Page.CONFIRM))
 	%YesButton.pressed.connect(_on_yes_pressed)
 	%NoButton.pressed.connect(_show_home)
+	_privacy_button.pressed.connect(_show.bind(Page.PRIVACY))
 	_show_password.toggled.connect(_on_show_password_toggled)
 	_show_home()
 
@@ -112,6 +115,7 @@ func _show(page: Page, message := "") -> void:
 	_message.visible = not message.is_empty()
 	_show_password.visible = page in [Page.CREATE, Page.LOGIN] or (page == Page.CONFIRM and _confirm == Confirm.DELETE)
 	_show_password.button_pressed = false
+	_privacy_button.visible = page in [Page.GUEST, Page.ACCOUNT]
 	# Typed passwords never stay around once the page changes.
 	for field: LineEdit in [_new_password, _login_password, _confirm_password]:
 		field.clear()

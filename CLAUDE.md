@@ -28,7 +28,9 @@ These rules (performance, file size, security) come first. They are **not negoti
 - **All external data is untrusted**: save files in `user://` (editable by anyone with the device), anything from the network, the clipboard or JavaScript. Validate type, range and shape on load, and fall back to safe defaults on anything invalid.
 - **Never deserialize Godot Variant/Object syntax from untrusted data**: no `ConfigFile`, `str_to_var`, `bytes_to_var(_with_objects)`, `ResourceLoader.load()`/`load()` on files in `user://` or downloaded files. These can instantiate objects and attach scripts, which means running code. Use JSON (`JSON.parse`) for saves and settings.
 - **No secrets in the repo**: keystores, service accounts, API keys and export credentials stay git-ignored (see `.gitignore`; Godot keeps export passwords in `.godot/export_credentials.cfg`).
-- **This is a kids' app**: collect no personal data, add no analytics, ads, accounts or network calls without an explicit decision by the owner (COPPA / GDPR-K). No external links without a parental gate.
+- **This is a kids' app**: collect no personal data, add no analytics, ads, accounts or network calls without an explicit decision by the owner (COPPA / GDPR-K). No external links without a parental gate. **Decided so far (2026-10-05):** optional accounts (nickname + password, no email) and cloud saves on Firebase Auth + Firestore; nothing else. A guest never causes a network request. Anything the server stores must be listed in the in-game Privacy page (`account_screen.tscn`) and removed by Delete account.
+- **Server access is decided on the server**: `firestore.rules` (owner-only documents, shape and range checks, default deny), never by the client. Change the rules together with `tools/test_firestore_rules.py`. The Firebase Web API key in `src/app/firebase_config.gd` is public by design; service account files stay out of the repo.
+- **Network code**: only through `JsonHttp` (timeout, response size cap, no redirects, nothing logged) to the three hosts allowed by the CSP in `firebase.json`. Responses are untrusted like save files: validate before use. Only validated letters/digits go into a URL path. Never log, store or keep passwords; the refresh token in `user://account.json` is the only credential on the device.
 - **Web export**: serve over HTTPS only; never pass untrusted strings to `JavaScriptBridge.eval()`.
 - **Dependencies and assets**: only from official sources, pinned to a version (e.g. GUT 9.7.1 in `addons/gut/`), with a compatible license recorded: for art, add a row (author, source URL, license, date checked) to `assets/<game>/CREDITS.md`. Review a third-party addon's code before adding it.
 
@@ -40,6 +42,11 @@ godot --headless -s addons/gut/gut_cmdln.gd  # run all unit tests (GUT 9.7.1, se
 godot --path .                               # run the game
 godot --headless -s tools/prepare_runner_assets.gd  # regenerate Runner art from the raw packs
 python3 tools/subset_emoji_font.py <NotoColorEmoji.ttf>  # rebuild the emoji font after adding/removing emoji in src/
+
+# Firestore access rules (firestore.rules): check in the local emulator, then deploy (owner only)
+JAVA_HOME=/opt/homebrew/opt/openjdk@21 PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH \
+  firebase emulators:exec --only firestore --project kifa-games "python3 tools/test_firestore_rules.py"
+firebase deploy --only firestore:rules
 
 # Web build + Firebase Hosting (project "kifa-games", see firebase.json)
 godot --headless --export-release "Web" build/web/index.html
@@ -61,10 +68,12 @@ infrastructure ─────────────────▶ domain (im
 ```
 src/
   app/                       # composition root: main menu, scene switching, autoloads, wiring of dependencies
-  shared/                    # shared kernel — only code genuinely used by 2+ games
-    domain/
-    infrastructure/
-    presentation/            # reusable UI pieces (StarProgress, WinScreen) and styles/*.tres
+  account/                   # accounts (register, log in, log out, delete): a bounded context that is not a game
+    domain/ application/ infrastructure/ presentation/
+  shared/                    # shared kernel — only code genuinely used by 2+ contexts
+    domain/                  # GateQuestion (parental gate)
+    infrastructure/          # JsonFile (atomic JSON in user://), JsonHttp, FirestoreDocuments
+    presentation/            # reusable UI pieces (StarProgress, WinScreen, ParentGate) and styles/*.tres
   games/
     <game>/                  # runner, math, match, coloring — one bounded context each
       domain/                # entities, value objects, domain services, ports. Pure GDScript.
@@ -137,8 +146,19 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 - **Complete** — no region is BLANK; celebrates once per page (until cleared). ✨ **Magic** fills every region with random colours; 🧽 **clear** blanks the page.
 - **Picture** — line art in a 400×320 space (`PictureLibrary`): paintable regions + fixed decorations, ported from the original SVG.
 
+**Account** (`src/account`)
+- **Guest** — playing without an account; progress lives only on this device.
+- **Account** — a username + password that owns the cloud saves. Optional; created by a grown-up.
+- **Username** — picked by the kid: 3–16 plain letters and digits; upper/lower case is the same name. Sent to Firebase as `name@kifa-games.invalid` (no real email anywhere).
+- **Session** (`AccountSession`) — who is logged in on this device (uid, username, refresh token).
+- **Parental gate** (`ParentGate`, `GateQuestion`) — a multiplication (factors 6–9) asked before creating or deleting an account.
+- **Account card** — the page shown once after registering: the username and "write down your password" (there is no password reset).
+
 **App** (`src/app`)
 - **Hub** — the main menu where the kid picks a game.
+- **Cloud save** — the server copy of one game's progress for one account (`saves/{uid}/games/{game}` in Firestore).
+- **Sync** — pull the cloud save, **merge** it into the device's progress, save on the device, push the result (`ProgressSync`, `CloudSaves`).
+- **Merge** (`Progress.absorb`) — best score = highest; owned = both sets; coins = highest lifetime earnings minus the price of everything owned. Same result in any order, safe to repeat.
 
 ## Conventions
 
@@ -160,4 +180,7 @@ Use these names in code, tests and conversation. Add terms when a game is ported
 - **Runner save file** (`user://runner_save.json`, `JsonProgressRepository`): v2 = `{"version": 2, "best_score", "coins", "owned": [ids]}`. A file without `version` is v1 (`{"best_score": N}`) and loads with 0 coins + the free characters; a newer `version` loads fresh and the file is left untouched until the next save. Everything is validated (whole numbers in range, only known ids, `owned` capped at 2 × catalog size) and rebuilt through `Progress.restore()`, which keeps the invariants. Saves are atomic (write `.tmp`, then rename) and happen only on run end and a successful purchase. Progress is per device/browser only (no accounts or cloud save).
 - **Shop:** locked `CharacterButton`s turn off `toggle_mode` (so they can't be selected), dim the art and show `🔒 🪙 price`; a tap emits `shop_requested(id)`. `ShopScreen` duplicates its `CardTemplate` once per catalog id; each `ShopCard`'s art is a `CharacterButton` in a shop-only ButtonGroup, so only the focused card animates and nothing processes while the shop is hidden. After a purchase `RunnerGame` refreshes the start screen and shop from `RunnerSession.progress`, pops the card and selects the new character.
 - **Background:** `RunnerBackground` fits the art to the screen height; layers are `ScrollingLayer`s (one draw call each, `texture_repeat` MIRROR for art whose edges don't match), decorations are `DecorationStrip`s (fixed sprite pool, recycled left → right with random texture/gap/size/flip; O(1) amortized per frame). The ground layer scrolls at factor 1.0 so it stays locked to obstacles.
+- **Accounts and cloud saves:** `main.gd` builds the services once (`_build_services`): `AccountService` (Firebase Auth over REST via `FirebaseAuthGateway`), one shared `JsonProgressRepository`, `ProgressSync` + `FirestoreProgressCloud`, and `CloudSaves`, which owns *when* to sync: app start, login, purchase, leaving Runner, and run end at most once per 60 s. Device first, cloud second: a failed sync loses nothing and the next one catches up. Logging out syncs, then resets the device to fresh progress (so the next kid does not inherit coins); deleting an account asks the gate and the password, deletes the cloud saves, then the account. Tests inject in-memory services with `main.setup(...)` (`tests/unit/app/fake_services.gd`); no unit test touches the network.
+- **Add a cloud save for another game:** a port + adapter like `ProgressCloud` / `FirestoreProgressCloud` (its own fields, codec validation and merge rule), a `match /saves/{uid}/games/<game>` block in `firestore.rules` + cases in `tools/test_firestore_rules.py`, the game id in `CloudSaves.GAMES`, and the wiring in `main.gd`. Accounts need no change.
+- **Text fields on Web:** phones need `html/experimental_virtual_keyboard=true` (export preset). While the on-screen keyboard is open Godot draws no caret unless `caret_force_displayed` is set (done per focused field in `AccountScreen`), and the default caret colour is near-white, so set `caret_color` on light fields. `HTTPRequest.accept_gzip` must stay off (`JsonHttp.new_request()`): the browser already unpacks gzip. Check Web changes in a browser, not only on desktop.
 - Every function has GUT tests (> 90% coverage). Domain and application layers must be fully tested without the scene tree.

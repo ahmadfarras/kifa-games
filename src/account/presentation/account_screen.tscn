@@ -363,6 +363,28 @@ theme_override_styles/hover = ExtResource("6_green")
 theme_override_styles/pressed = ExtResource("6_green")
 text = "No"
 
+[node name="PrivacyPage" type="VBoxContainer" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="PrivacyText" type="Label" parent="Center/Card/Layout/PrivacyPage"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 19
+text = "You can play Kifa Games without an account. Then nothing leaves this device.
+
+If a grown-up creates an account, we keep three things on Google Firebase servers: the nickname, the password (scrambled, nobody can read it) and the game progress (best score, coins, characters).
+
+We do not ask for a real name, email, age, location, photos or contacts. There are no ads and no tracking. The data is only used to bring the progress to another device. It is never sold or shared.
+
+To erase everything, log in and choose Delete account.
+
+Questions: github.com/ahmadfarras/kifa-games"
+autowrap_mode = 3
+
 [node name="ShowPassword" type="CheckBox" parent="Center/Card/Layout"]
 unique_name_in_owner = true
 visible = false
@@ -375,6 +397,18 @@ theme_override_colors/font_hover_pressed_color = Color(0.4, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 24
 theme_override_styles/focus = ExtResource("5_no_focus")
 text = "Show password"
+
+[node name="PrivacyButton" type="Button" parent="Center/Card/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
+theme_override_colors/font_hover_color = Color(0.45, 0.45, 0.45, 1)
+theme_override_colors/font_pressed_color = Color(0.45, 0.45, 0.45, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/focus = ExtResource("5_no_focus")
+flat = true
+text = "Privacy"
 
 [node name="BackButton" type="Button" parent="."]
 unique_name_in_owner = true
