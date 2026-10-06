@@ -116,11 +116,12 @@ func _build_coloring() -> ColoringGame:
 ## cloud save request can wait for a login token without blocking itself.
 func _build_services() -> void:
 	var clock := Time.get_unix_time_from_system
-	var gateway := FirebaseAuthGateway.new(_new_http(), FirebaseConfig.API_KEY)
+	var config := FirebaseConfig.new()
+	var gateway := FirebaseAuthGateway.new(_new_http(), config.api_key)
 	_account = AccountService.new(gateway, JsonAccountStore.new(), clock)
 	_repository = JsonProgressRepository.new()
 	var documents := FirestoreDocuments.new(
-		_new_http(), FirebaseConfig.PROJECT_ID, _account.id_token, _account.uid
+		_new_http(), config.project_id, _account.id_token, _account.uid
 	)
 	var sync := ProgressSync.new(_repository, FirestoreProgressCloud.new(documents))
 	_cloud_saves = CloudSaves.new(_account, _repository, sync, documents, clock)
